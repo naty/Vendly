@@ -1,0 +1,2141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VENDLY — Sistema de Gestión Comercial</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- DataTables -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+  <!-- Select2 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
+  <!-- SweetAlert2 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/vendly.css">
+
+  <style>
+    /* POS grid */
+    .pos-product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+      padding: 4px 2px;
+    }
+    .pos-product-card {
+      background: #fff;
+      border-radius: 10px;
+      border: 1.5px solid #e9ecef;
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.18s;
+      user-select: none;
+    }
+    .pos-product-card:hover {
+      border-color: #00BCD4;
+      box-shadow: 0 2px 10px rgba(0,188,212,0.18);
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="wrapper">
+
+  <!-- =============================================
+       SIDEBAR
+       ============================================= -->
+  <nav id="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <span class="sidebar-logo-icon">⚡</span>
+      <span class="sidebar-logo-text">VENDLY</span>
+    </div>
+
+    <!-- User info -->
+    <div class="sidebar-user">
+      <img src="https://ui-avatars.com/api/?name=Admin+User&background=00BCD4&color=fff&size=80" alt="avatar">
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name">Admin User</div>
+        <div class="sidebar-user-role">Administrador</div>
+        <div class="sidebar-user-store"><span class="dot"></span> Mi Tienda</div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <ul class="sidebar-nav">
+
+      <!-- Dashboard -->
+      <li class="nav-item" data-label="Dashboard">
+        <a class="nav-item-link active" href="#" data-page="dashboard" data-label="Dashboard">
+          <i class="bi bi-speedometer2 nav-icon"></i>
+          <span class="nav-label">Dashboard</span>
+        </a>
+      </li>
+
+      <!-- Módulos -->
+      <li class="nav-item" data-label="Módulos">
+        <a class="nav-item-link" href="#" data-bs-toggle="collapse" data-bs-target="#sub-modulos" aria-expanded="false">
+          <i class="bi bi-grid nav-icon"></i>
+          <span class="nav-label">Módulos</span>
+          <i class="bi bi-chevron-down submenu-arrow"></i>
+        </a>
+        <ul class="sidebar-submenu collapse" id="sub-modulos">
+          <li><a href="#">Lista de módulos</a></li>
+        </ul>
+      </li>
+
+      <!-- Soporte -->
+      <li class="nav-item" data-label="Soporte">
+        <a class="nav-item-link" href="#" data-bs-toggle="collapse" data-bs-target="#sub-soporte" aria-expanded="false">
+          <i class="bi bi-headset nav-icon"></i>
+          <span class="nav-label">Soporte</span>
+          <i class="bi bi-chevron-down submenu-arrow"></i>
+        </a>
+        <ul class="sidebar-submenu collapse" id="sub-soporte">
+          <li><a href="#">Contáctenos</a></li>
+        </ul>
+      </li>
+
+      <!-- Referidos -->
+      <li class="nav-item" data-label="Referidos">
+        <a class="nav-item-link" href="#" data-bs-toggle="collapse" data-bs-target="#sub-referidos" aria-expanded="false">
+          <i class="bi bi-gift nav-icon"></i>
+          <span class="nav-label">Referidos</span>
+          <i class="bi bi-chevron-down submenu-arrow"></i>
+        </a>
+        <ul class="sidebar-submenu collapse" id="sub-referidos">
+          <li><a href="#">Referí y ganá</a></li>
+        </ul>
+      </li>
+
+      <li><div class="sidebar-divider"></div></li>
+
+      <!-- Productos -->
+      <li class="nav-item" data-label="Productos">
+        <a class="nav-item-link" href="#" data-bs-toggle="collapse" data-bs-target="#sub-productos" aria-expanded="false">
+          <i class="bi bi-box-seam nav-icon"></i>
+          <span class="nav-label">Productos</span>
+          <i class="bi bi-chevron-down submenu-arrow"></i>
+        </a>
+        <ul class="sidebar-submenu collapse" id="sub-productos">
+          <li><a href="#" data-page="products" data-label="Lista de Productos">Lista de productos</a></li>
+          <li><a href="#" data-page="create-product" data-label="Crear Producto">Crear producto</a></li>
+          <li><a href="#" data-page="stock-adjustment" data-label="Ajuste de Stock">Ajuste de stock</a></li>
+          <li><a href="#" data-page="categories" data-label="Lista de Categorías">Lista de categorías</a></li>
+          <li><a href="#" data-page="brands" data-label="Lista de Marcas">Lista de marcas</a></li>
+          <li><a href="#" data-page="units" data-label="Lista de Unidades">Lista de unidades</a></li>
+          <li><a href="#">Código de barras</a></li>
+          <li><a href="#" onclick="openMassPriceModal()">Ajuste masivo de precios</a></li>
+          <li><a href="#" data-page="stock-adjustment" data-label="Ajuste de Stock">Ajuste masivo de stock</a></li>
+        </ul>
+      </li>
+
+      <!-- Ventas -->
+      <li class="nav-item" data-label="Ventas">
+        <a class="nav-item-link" href="#" data-bs-toggle="collapse" data-bs-target="#sub-ventas" aria-expanded="false">
+          <i class="bi bi-cart3 nav-icon"></i>
+          <span class="nav-label">Ventas</span>
+          <i class="bi bi-chevron-down submenu-arrow"></i>
+        </a>
+        <ul class="sidebar-submenu collapse" id="sub-ventas">
+          <li><a href="#" data-page="sales" data-label="Lista de Ventas">Lista de ventas</a></li>
+          <li><a href="#" data-page="pos" data-label="Crear Venta (POS)">Crear venta (POS)</a></li>
+          <li><a href="#" data-page="payment-terms" data-label="Términos de Pago">Términos de pago</a></li>
+          <li><a href="#" data-page="cash-registers" data-label="Lista de Cajas">Lista de cajas</a></li>
+          <li><a href="#" data-page="cash-movements" data-label="Movimientos de Caja">Movimientos de caja</a></li>
+          <li><a href="#" data-page="commissions" data-label="Comisiones por Venta">Comisiones por venta</a></li>
+          <li><a href="#" data-page="commissions" data-label="Comisiones por Ítem">Comisiones por ítem</a></li>
+          <li><a href="#" data-page="debit-notes" data-label="Notas de Débito">Lista de notas de débito</a></li>
+          <li><a href="#" data-page="debit-notes" data-label="Generar Nota de Débito">Generar nota de débito</a></li>
+        </ul>
+      </li>
+
+      <!-- Presupuestos -->
+      <li class="nav-item" data-label="Presupuestos">
+        <a class="nav-item-link" href="#" data-bs-toggle="collapse" data-bs-target="#sub-presupuestos" aria-expanded="false">
+          <i class="bi bi-file-text nav-icon"></i>
+          <span class="nav-label">Presupuestos</span>
+          <i class="bi bi-chevron-down submenu-arrow"></i>
+        </a>
+        <ul class="sidebar-submenu collapse" id="sub-presupuestos">
+          <li><a href="#" data-page="budgets" data-label="Lista de Presupuestos">Lista de presupuestos</a></li>
+        </ul>
+      </li>
+
+      <!-- Devoluciones -->
+      <li class="nav-item" data-label="Devoluciones">
+        <a class="nav-item-link" href="#" data-bs-toggle="collapse" data-bs-target="#sub-devoluciones" aria-expanded="false">
+          <i class="bi bi-arrow-return-left nav-icon"></i>
+          <span class="nav-label">Devoluciones</span>
+          <i class="bi bi-chevron-down submenu-arrow"></i>
+        </a>
+        <ul class="sidebar-submenu collapse" id="sub-devoluciones">
+          <li><a href="#" data-page="returns" data-label="Lista de Devoluciones">Lista de devoluciones</a></li>
+          <li><a href="#" data-page="create-return" data-label="Generar Devolución">Generar devolución</a></li>
+        </ul>
+      </li>
+
+      <!-- Clientes -->
+      <li class="nav-item" data-label="Clientes">
+        <a class="nav-item-link" href="#" data-bs-toggle="collapse" data-bs-target="#sub-clientes" aria-expanded="false">
+          <i class="bi bi-people nav-icon"></i>
+          <span class="nav-label">Clientes</span>
+          <i class="bi bi-chevron-down submenu-arrow"></i>
+        </a>
+        <ul class="sidebar-submenu collapse" id="sub-clientes">
+          <li><a href="#" data-page="clients" data-label="Lista de Clientes">Lista de clientes</a></li>
+          <li><a href="#" data-page="clients" data-label="Crear Cliente" onclick="setTimeout(openCreateClientModal,200)">Crear cliente</a></li>
+          <li><a href="#">Lista de cumpleaños</a></li>
+          <li><a href="#">Grupos de clientes</a></li>
+
+        </ul>
+      </li>
+
+      <!-- Remisión -->
+      <li class="nav-item" data-label="Remisión">
+        <a class="nav-item-link" href="#" data-bs-toggle="collapse" data-bs-target="#sub-remision" aria-expanded="false">
+          <i class="bi bi-truck nav-icon"></i>
+          <span class="nav-label">Remisión</span>
+          <i class="bi bi-chevron-down submenu-arrow"></i>
+        </a>
+        <ul class="sidebar-submenu collapse" id="sub-remision">
+          <li><a href="#" data-page="remissions" data-label="Lista de Remisiones">Lista de remisiones</a></li>
+        </ul>
+      </li>
+
+      <!-- Cuentas -->
+      <li class="nav-item" data-label="Cuentas">
+        <a class="nav-item-link" href="#" data-bs-toggle="collapse" data-bs-target="#sub-cuentas" aria-expanded="false">
+          <i class="bi bi-journal-text nav-icon"></i>
+          <span class="nav-label">Cuentas</span>
+          <i class="bi bi-chevron-down submenu-arrow"></i>
+        </a>
+        <ul class="sidebar-submenu collapse" id="sub-cuentas">
+          <li><a href="#" data-page="account-status" data-label="Estado de Cuentas">Estado de cuentas</a></li>
+          <li><a href="#" data-page="payments-register" data-label="Registro de Pagos">Registro de pagos</a></li>
+          <li><a href="#">Vencimientos por fecha</a></li>
+          <li><a href="#">Lista de cuentas</a></li>
+          <li><a href="#">Interés por mora</a></li>
+        </ul>
+      </li>
+
+      <li><div class="sidebar-divider"></div></li>
+
+      <!-- Compras -->
+      <li class="nav-item" data-label="Compras">
+        <a class="nav-item-link" href="#" data-bs-toggle="collapse" data-bs-target="#sub-compras" aria-expanded="false">
+          <i class="bi bi-bag nav-icon"></i>
+          <span class="nav-label">Compras</span>
+          <i class="bi bi-chevron-down submenu-arrow"></i>
+        </a>
+        <ul class="sidebar-submenu collapse" id="sub-compras">
+          <li><a href="#" data-page="purchases" data-label="Lista de Compras">Lista de compras</a></li>
+          <li><a href="#" data-page="create-purchase" data-label="Crear Compra">Crear compra</a></li>
+          <li><a href="#" data-page="payment-terms" data-label="Términos de Pago">Términos de pago</a></li>
+        </ul>
+      </li>
+
+      <!-- Proveedores -->
+      <li class="nav-item" data-label="Proveedores">
+        <a class="nav-item-link" href="#" data-bs-toggle="collapse" data-bs-target="#sub-proveedores" aria-expanded="false">
+          <i class="bi bi-building nav-icon"></i>
+          <span class="nav-label">Proveedores</span>
+          <i class="bi bi-chevron-down submenu-arrow"></i>
+        </a>
+        <ul class="sidebar-submenu collapse" id="sub-proveedores">
+          <li><a href="#" data-page="suppliers" data-label="Lista de Proveedores">Lista de proveedores</a></li>
+          <li><a href="#" onclick="openCreateSupplierModal()">Crear proveedor</a></li>
+        </ul>
+      </li>
+
+      <!-- Gastos -->
+      <li class="nav-item" data-label="Gastos">
+        <a class="nav-item-link" href="#" data-bs-toggle="collapse" data-bs-target="#sub-gastos" aria-expanded="false">
+          <i class="bi bi-cash-stack nav-icon"></i>
+          <span class="nav-label">Gastos</span>
+          <i class="bi bi-chevron-down submenu-arrow"></i>
+        </a>
+        <ul class="sidebar-submenu collapse" id="sub-gastos">
+          <li><a href="#" data-page="expenses" data-label="Lista de Gastos">Lista de gastos</a></li>
+          <li><a href="#">Crear gasto</a></li>
+          <li><a href="#">Gastos predefinidos</a></li>
+          <li><a href="#">Categoría de gastos</a></li>
+        </ul>
+      </li>
+
+      <!-- Contabilidad -->
+      <li class="nav-item" data-label="Contabilidad">
+        <a class="nav-item-link" href="#" data-bs-toggle="collapse" data-bs-target="#sub-contabilidad" aria-expanded="false">
+          <i class="bi bi-book nav-icon"></i>
+          <span class="nav-label">Contabilidad</span>
+          <i class="bi bi-chevron-down submenu-arrow"></i>
+        </a>
+        <ul class="sidebar-submenu collapse" id="sub-contabilidad">
+          <li><a href="#" data-page="accounting" data-label="Libros Contables">Libros contables</a></li>
+        </ul>
+      </li>
+
+      <li><div class="sidebar-divider"></div></li>
+
+      <!-- Informes -->
+      <li class="nav-item" data-label="Informes">
+        <a class="nav-item-link" href="#" data-bs-toggle="collapse" data-bs-target="#sub-informes" aria-expanded="false">
+          <i class="bi bi-bar-chart-line nav-icon"></i>
+          <span class="nav-label">Informes</span>
+          <i class="bi bi-chevron-down submenu-arrow"></i>
+        </a>
+        <ul class="sidebar-submenu collapse" id="sub-informes">
+          <li><a href="#" data-page="cash-report" data-label="Informe de Caja">Informe de caja</a></li>
+          <li><a href="#" data-page="stock-alerts" data-label="Alertas de Stock">Alertas de stock</a></li>
+          <li><a href="#">Caducidad de productos</a></li>
+          <li><a href="#">Informe de productos</a></li>
+          <li><a href="#" data-page="reports-sales" data-label="Informe de Ventas">Informe de ventas</a></li>
+          <li><a href="#">Informe de compras</a></li>
+          <li><a href="#">Informe de gastos</a></li>
+          <li><a href="#">Informe de pagos</a></li>
+          <li><a href="#">Estadística mensual</a></li>
+          <li><a href="#" data-page="stock-valued" data-label="Stock Valorizado">Stock valorizado</a></li>
+          <li><a href="#">Ventas (por ítem)</a></li>
+          <li><a href="#">Compras (por ítem)</a></li>
+          <li><a href="#" data-page="profit-loss" data-label="Ganancias / Pérdidas">Ganancias / pérdidas</a></li>
+        </ul>
+      </li>
+
+      <!-- Business Intelligence -->
+      <li class="nav-item" data-label="Business Intelligence">
+        <a class="nav-item-link" href="#" data-bs-toggle="collapse" data-bs-target="#sub-bi" aria-expanded="false">
+          <i class="bi bi-graph-up nav-icon"></i>
+          <span class="nav-label">Business Intelligence</span>
+          <i class="bi bi-chevron-down submenu-arrow"></i>
+        </a>
+        <ul class="sidebar-submenu collapse" id="sub-bi">
+          <li><a href="#" data-page="bi-rankings" data-label="Artículos sin rotación">Artículos sin rotación</a></li>
+          <li><a href="#" data-page="bi-rankings" data-label="Ranking de Productos">Ranking de productos</a></li>
+          <li><a href="#" data-page="bi-rankings" data-label="Ranking de Clientes">Ranking de clientes</a></li>
+          <li><a href="#" data-page="bi-rankings" data-label="Ranking de Proveedores">Ranking de proveedores</a></li>
+          <li><a href="#" data-page="bi-rankings" data-label="Ranking de Responsables">Ranking de responsables</a></li>
+        </ul>
+      </li>
+
+    </ul><!-- /sidebar-nav -->
+  </nav><!-- /sidebar -->
+
+
+  <!-- =============================================
+       MAIN CONTENT
+       ============================================= -->
+  <div id="main-content">
+
+    <!-- HEADER -->
+    <header class="top-header">
+      <button class="btn-sidebar-toggle" id="sidebarToggle" title="Menú">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <span class="header-title" id="headerTitle">Dashboard</span>
+
+      <div class="header-actions ms-auto">
+
+        <!-- Notifications -->
+        <div class="dropdown">
+          <button class="header-icon-btn" data-bs-toggle="dropdown" title="Notificaciones">
+            <i class="bi bi-bell"></i>
+            <span class="header-badge">3</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-1" style="min-width:300px;font-size:0.83rem;">
+            <li class="px-3 py-2 fw-bold border-bottom">Notificaciones</li>
+            <li><a class="dropdown-item py-2" href="#">
+              <div class="d-flex gap-2 align-items-start">
+                <span style="color:#DC3545;font-size:1.1rem;">⚠️</span>
+                <div><div class="fw-semibold">Stock crítico</div><div class="text-muted" style="font-size:0.78rem;">106 productos con stock bajo</div></div>
+              </div>
+            </a></li>
+            <li><a class="dropdown-item py-2" href="#">
+              <div class="d-flex gap-2 align-items-start">
+                <span style="font-size:1.1rem;">📦</span>
+                <div><div class="fw-semibold">Compra pendiente</div><div class="text-muted" style="font-size:0.78rem;">OC-001 por recibir</div></div>
+              </div>
+            </a></li>
+            <li><a class="dropdown-item py-2" href="#">
+              <div class="d-flex gap-2 align-items-start">
+                <span style="font-size:1.1rem;">💰</span>
+                <div><div class="fw-semibold">Venta pendiente</div><div class="text-muted" style="font-size:0.78rem;">#1003 — $920.000</div></div>
+              </div>
+            </a></li>
+            <li class="border-top"><a class="dropdown-item text-center py-2" href="#" style="color:#00BCD4;">Ver todas</a></li>
+          </ul>
+        </div>
+
+        <!-- Cart -->
+        <button class="header-icon-btn" title="Carrito" onclick="navigateTo('pos','Crear Venta (POS)')">
+          <i class="bi bi-cart3"></i>
+        </button>
+
+        <!-- Deposits -->
+        <button class="header-icon-btn" title="Depósitos" onclick="openDepositsModal()">
+          <i class="bi bi-safe2"></i>
+        </button>
+
+        <!-- User -->
+        <div class="dropdown">
+          <button class="header-user dropdown-toggle" data-bs-toggle="dropdown" style="background:none;border:none;">
+            <img src="https://ui-avatars.com/api/?name=Admin+User&background=00BCD4&color=fff&size=80" alt="avatar">
+            <span class="header-user-name">Admin User</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-1" style="font-size:0.83rem;min-width:180px;">
+            <li class="px-3 py-2 border-bottom">
+              <div class="fw-bold">Admin User</div>
+              <div class="text-muted" style="font-size:0.78rem;">Administrador</div>
+            </li>
+            <li><a class="dropdown-item py-2" href="#" onclick="openProfileModal()"><i class="bi bi-person me-2 text-primary"></i>Mi perfil</a></li>
+            <li><a class="dropdown-item py-2" href="#" onclick="openSettingsModal()"><i class="bi bi-gear me-2 text-secondary"></i>Configuración</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item py-2 text-danger" href="#" onclick="confirmLogout()"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</a></li>
+          </ul>
+        </div>
+
+      </div>
+    </header><!-- /header -->
+
+
+    <!-- PAGE CONTENT -->
+    <div class="page-content">
+
+
+      <!-- =============================================
+           PAGE: DASHBOARD
+           ============================================= -->
+      <div id="page-dashboard" class="page active">
+
+        <!-- Section 1: Weekly ticket + Annual stats -->
+        <div class="row g-3 mb-section">
+
+          <!-- Weekly ticket cards -->
+          <div class="col-lg-4">
+            <div class="vcard h-100">
+              <div class="vcard-title">Ticket promedio semanal</div>
+              <div class="d-flex flex-column gap-3">
+                <a class="stat-card" href="#" data-page="sales" data-label="Lista de Ventas">
+                  <div class="stat-icon"><i class="bi bi-graph-up-arrow"></i></div>
+                  <div class="stat-info">
+                    <div class="stat-value">2.300.000</div>
+                    <div class="stat-label">Total de ventas</div>
+                  </div>
+                </a>
+                <a class="stat-card" href="#" data-page="sales" data-label="Lista de Ventas">
+                  <div class="stat-icon orange"><i class="bi bi-cart-check"></i></div>
+                  <div class="stat-info">
+                    <div class="stat-value">9</div>
+                    <div class="stat-label">Cantidad de ventas</div>
+                  </div>
+                </a>
+                <a class="stat-card" href="#" data-page="sales" data-label="Lista de Ventas">
+                  <div class="stat-icon green"><i class="bi bi-receipt"></i></div>
+                  <div class="stat-info">
+                    <div class="stat-value">255.556</div>
+                    <div class="stat-label">Ticket promedio</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Annual chart -->
+          <div class="col-lg-8">
+            <div class="vcard h-100">
+              <div class="vcard-title">Estadística anual</div>
+              <div class="chart-container" style="height:220px;">
+                <canvas id="annualChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Weekly profit -->
+        <div class="row g-3 mb-section">
+          <div class="col-12">
+            <div class="vcard">
+              <div class="vcard-title mb-3">Total de ganancias semanal</div>
+              <div class="row g-3">
+                <div class="col-6 col-md-3">
+                  <div class="stat-card">
+                    <div class="stat-icon"><i class="bi bi-arrow-up-circle-fill"></i></div>
+                    <div class="stat-info">
+                      <div class="stat-value" style="font-size:1.1rem;">2.300.000</div>
+                      <div class="stat-label">Total de ventas</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="stat-card">
+                    <div class="stat-icon red"><i class="bi bi-arrow-down-circle-fill"></i></div>
+                    <div class="stat-info">
+                      <div class="stat-value" style="font-size:1.1rem;">890.609</div>
+                      <div class="stat-label">Costos</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="stat-card">
+                    <div class="stat-icon green"><i class="bi bi-arrow-left-right"></i></div>
+                    <div class="stat-info">
+                      <div class="stat-value" style="font-size:1.1rem;">1.409.391</div>
+                      <div class="stat-label">Ganancias</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="stat-card">
+                    <div class="stat-icon purple"><i class="bi bi-percent"></i></div>
+                    <div class="stat-info">
+                      <div class="stat-value" style="font-size:1.1rem;">61%</div>
+                      <div class="stat-label">Margen</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Cash audit + Sales totals -->
+        <div class="row g-3 mb-section">
+
+          <!-- Cash audit chart -->
+          <div class="col-lg-7">
+            <div class="vcard h-100">
+              <div class="vcard-title">Últimos arqueos de caja</div>
+              <div class="chart-container" style="height:200px;">
+                <canvas id="cashAuditChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sales totals -->
+          <div class="col-lg-5">
+            <div class="vcard h-100">
+              <div class="vcard-title">Total de ventas</div>
+              <div class="d-flex flex-column gap-3">
+                <div class="stat-card">
+                  <div class="stat-icon"><i class="bi bi-calendar-day"></i></div>
+                  <div class="stat-info">
+                    <div class="stat-value">2.300.000</div>
+                    <div class="stat-label">Día</div>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-icon orange"><i class="bi bi-calendar-week"></i></div>
+                  <div class="stat-info">
+                    <div class="stat-value">2.300.000</div>
+                    <div class="stat-label">Semana</div>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-icon green"><i class="bi bi-calendar-month"></i></div>
+                  <div class="stat-info">
+                    <div class="stat-value">3.892.000</div>
+                    <div class="stat-label">Mes</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 4: Notifications -->
+        <div class="row g-3 mb-section">
+          <div class="col-12">
+            <div class="vcard">
+              <div class="vcard-title mb-3">Notificaciones</div>
+              <div class="row g-3">
+                <div class="col-6 col-md-3">
+                  <a class="notif-card" href="#">
+                    <span class="notif-icon"><i class="bi bi-calendar-event"></i></span>
+                    <div class="notif-number">0</div>
+                    <div class="notif-label">Eventos</div>
+                  </a>
+                </div>
+                <div class="col-6 col-md-3">
+                  <a class="notif-card" href="#">
+                    <span class="notif-icon"><i class="bi bi-cake2"></i></span>
+                    <div class="notif-number">0</div>
+                    <div class="notif-label">Cumpleaños</div>
+                  </a>
+                </div>
+                <div class="col-6 col-md-3">
+                  <a class="notif-card" href="#">
+                    <span class="notif-icon" style="color:#DC3545;"><i class="bi bi-exclamation-triangle"></i></span>
+                    <div class="notif-number red">106</div>
+                    <div class="notif-label">Stock crítico</div>
+                  </a>
+                </div>
+                <div class="col-6 col-md-3">
+                  <a class="notif-card" href="#">
+                    <span class="notif-icon"><i class="bi bi-hourglass-split"></i></span>
+                    <div class="notif-number">0</div>
+                    <div class="notif-label">Por Vencerse</div>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 5: Category ranking + Product ranking -->
+        <div class="row g-3 mb-section">
+
+          <!-- Category donut -->
+          <div class="col-lg-5">
+            <div class="vcard h-100">
+              <div class="vcard-title">Ranking de categorías</div>
+              <div class="chart-container" style="height:240px;">
+                <canvas id="categoryChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product ranking -->
+          <div class="col-lg-7">
+            <div class="vcard h-100">
+              <div class="vcard-title">
+                Ranking de productos
+                <button class="btn-primary-custom" style="font-size:0.75rem;padding:5px 12px;" onclick="navigateTo('products','Lista de Productos')">
+                  <i class="bi bi-graph-up"></i> Ir a business intelligence
+                </button>
+              </div>
+              <table class="table table-hover table-sm mb-0" style="font-size:0.82rem;">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th class="text-end">Ventas</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td><span class="badge bg-warning text-dark">1</span></td><td>Laptop Pro 15"</td><td>Electrónica</td><td class="text-end fw-bold">$4.800.000</td></tr>
+                  <tr><td><span class="badge bg-secondary">2</span></td><td>Monitor 24" Full HD</td><td>Electrónica</td><td class="text-end fw-bold">$2.320.000</td></tr>
+                  <tr><td><span class="badge bg-secondary">3</span></td><td>Auriculares BT</td><td>Electrónica</td><td class="text-end fw-bold">$756.000</td></tr>
+                  <tr><td><span class="badge bg-secondary">4</span></td><td>Mochila Urbana 25L</td><td>Accesorios</td><td class="text-end fw-bold">$630.000</td></tr>
+                  <tr><td><span class="badge bg-secondary">5</span></td><td>Zapatillas Running</td><td>Calzado</td><td class="text-end fw-bold">$525.000</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 6: Customer ranking -->
+        <div class="row g-3 mb-section">
+          <div class="col-12">
+            <div class="vcard">
+              <div class="vcard-title">
+                Ranking de clientes
+                <button class="btn-primary-custom" style="font-size:0.75rem;padding:5px 12px;" onclick="navigateTo('clients','Lista de Clientes')">
+                  <i class="bi bi-graph-up"></i> Ir a business intelligence
+                </button>
+              </div>
+              <div class="chart-container" style="height:220px;">
+                <canvas id="customerChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 7: General totals -->
+        <div class="row g-3 mb-section">
+          <div class="col-12">
+            <div class="vcard">
+              <div class="vcard-title mb-3">Totales generales</div>
+              <div class="row g-3">
+                <div class="col-6 col-md-2">
+                  <div class="count-card">
+                    <div class="count-number">523</div>
+                    <div class="count-label">Productos</div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-2">
+                  <div class="count-card">
+                    <div class="count-number">86</div>
+                    <div class="count-label">Clientes</div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-2">
+                  <div class="count-card">
+                    <div class="count-number">8</div>
+                    <div class="count-label">Proveedores</div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-2">
+                  <div class="count-card">
+                    <div class="count-number">142</div>
+                    <div class="count-label">Categorías</div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-2">
+                  <div class="count-card">
+                    <div class="count-number">3</div>
+                    <div class="count-label">Empleados</div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-2">
+                  <div class="count-card">
+                    <div class="count-number">1</div>
+                    <div class="count-label">Grupos</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /page-dashboard -->
+
+
+      <!-- =============================================
+           PAGE: PRODUCTS
+           ============================================= -->
+      <div id="page-products" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-box-seam me-2 text-primary"></i>Productos</h1>
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn-success-custom" onclick="openCreateProductModal()">
+              <i class="bi bi-plus-lg"></i> Crear Producto
+            </button>
+            <div class="dropdown">
+              <button class="btn-primary-custom dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-lightning"></i> Acciones
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="font-size:0.83rem;">
+                <li><a class="dropdown-item py-2" href="#" onclick="exportProducts()"><i class="bi bi-file-earmark-excel text-success me-2"></i>Exportar Excel</a></li>
+                <li><a class="dropdown-item py-2" href="#" onclick="exportPDF()"><i class="bi bi-file-earmark-pdf text-danger me-2"></i>Exportar PDF</a></li>
+                <li><a class="dropdown-item py-2" href="#" onclick="importCSV()"><i class="bi bi-upload text-primary me-2"></i>Importar CSV</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item py-2" href="#" onclick="openMassPriceModal()"><i class="bi bi-tags text-warning me-2"></i>Ajuste masivo de precios</a></li>
+                <li><a class="dropdown-item py-2" href="#" data-page="stock-adjustment" data-label="Ajuste de Stock"><i class="bi bi-layers text-info me-2"></i>Ajuste masivo de stock</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <p class="tutorial-hint">
+            <i class="bi bi-info-circle text-primary me-1"></i>
+            En caso de alguna duda, puede hacer <a href="#">click aquí</a> para ver el tutorial.
+          </p>
+          <div class="table-responsive">
+            <table id="productsTable" class="table table-hover align-middle" style="width:100%;">
+              <thead>
+                <tr>
+                  <th style="width:36px;"><input type="checkbox" class="form-check-input" id="selectAllProducts"></th>
+                  <th>Imagen</th>
+                  <th>Código</th>
+                  <th>Nombre</th>
+                  <th>Categoría</th>
+                  <th>Precio costo</th>
+                  <th>Precio venta</th>
+                  <th>Cantidad</th>
+                  <th>Unidad</th>
+                  <th>Tipo</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="productsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-products -->
+
+
+      <!-- =============================================
+           PAGE: SALES
+           ============================================= -->
+      <div id="page-sales" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-cart3 me-2 text-primary"></i>Ventas</h1>
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn-success-custom" onclick="navigateTo('pos','Crear Venta (POS)')">
+              <i class="bi bi-plus-lg"></i> Nueva Venta
+            </button>
+            <div class="dropdown">
+              <button class="btn-primary-custom dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-lightning"></i> Acciones
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="font-size:0.83rem;">
+                <li><a class="dropdown-item py-2" href="#" onclick="exportSales()"><i class="bi bi-file-earmark-excel text-success me-2"></i>Exportar Excel</a></li>
+                <li><a class="dropdown-item py-2" href="#" onclick="exportPDF()"><i class="bi bi-file-earmark-pdf text-danger me-2"></i>Exportar PDF</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table id="salesTable" class="table table-hover align-middle" style="width:100%;">
+              <thead>
+                <tr>
+                  <th>N°</th>
+                  <th>Fecha</th>
+                  <th>Cliente</th>
+                  <th>Ítems</th>
+                  <th>Total</th>
+                  <th>Pago</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="salesTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-sales -->
+
+
+      <!-- =============================================
+           PAGE: POS — CREATE SALE
+           ============================================= -->
+      <div id="page-pos" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-cart-check me-2 text-primary"></i>Punto de Venta (POS)</h1>
+        </div>
+
+        <div class="pos-layout">
+
+          <!-- LEFT: Products -->
+          <div class="pos-left">
+
+            <!-- Search + client selector -->
+            <div class="vcard">
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-search text-muted"></i>
+                    <input id="posSearchInput" class="form-control" placeholder="Buscar producto por nombre o código...">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <select class="form-select" id="posClientSelect">
+                    <option value="">— Consumidor Final —</option>
+                    <option>García, Juan Carlos</option>
+                    <option>López, María Fernanda</option>
+                    <option>González, Luis M.</option>
+                    <option>Martínez, Pedro A.</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Product grid -->
+            <div class="vcard" style="flex:1;overflow-y:auto;max-height:500px;">
+              <div class="vcard-title">Productos</div>
+              <div class="pos-product-grid" id="posProductGrid"></div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Cart -->
+          <div class="pos-right">
+
+            <!-- Cart header -->
+            <div class="vcard">
+              <div class="vcard-title">
+                <span><i class="bi bi-cart3 me-1"></i> Carrito</span>
+                <span id="posItemCount" class="badge rounded-pill" style="background:#00BCD4;font-size:0.72rem;">0 ítems</span>
+              </div>
+              <div id="posCartItems" style="max-height:340px;overflow-y:auto;"></div>
+            </div>
+
+            <!-- Summary -->
+            <div class="vcard" style="background:linear-gradient(135deg,#00BCD4,#0097a7);color:#fff;">
+              <div class="d-flex justify-content-between mb-2">
+                <span style="font-size:0.85rem;opacity:0.85;">Subtotal</span>
+                <span id="posSubtotal" class="fw-semibold">$0</span>
+              </div>
+              <div class="d-flex justify-content-between mb-3">
+                <span style="font-size:0.85rem;opacity:0.85;">Descuento</span>
+                <span class="fw-semibold">$0</span>
+              </div>
+              <div class="border-top border-white border-opacity-25 pt-3 mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span style="font-size:1rem;font-weight:700;">TOTAL</span>
+                  <span id="posTotal" style="font-size:1.8rem;font-weight:900;">$0</span>
+                </div>
+              </div>
+              <div class="mb-3">
+                <select class="form-select" style="font-size:0.85rem;">
+                  <option>Efectivo</option>
+                  <option>Tarjeta de débito</option>
+                  <option>Tarjeta de crédito</option>
+                  <option>Transferencia</option>
+                  <option>Cuenta corriente</option>
+                </select>
+              </div>
+              <button class="w-100 btn btn-light fw-bold" style="color:#00BCD4;font-size:1rem;border-radius:8px;padding:12px;" onclick="completeSale()">
+                <i class="bi bi-check-circle-fill me-2"></i> COBRAR
+              </button>
+              <button class="w-100 btn mt-2 fw-semibold" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;font-size:0.85rem;" onclick="posCart=[];renderPOSCart()">
+                <i class="bi bi-trash3 me-1"></i> Limpiar carrito
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div><!-- /page-pos -->
+
+
+      <!-- =============================================
+           PAGE: CLIENTS
+           ============================================= -->
+      <div id="page-clients" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-people me-2 text-primary"></i>Clientes</h1>
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn-success-custom" onclick="openCreateClientModal()">
+              <i class="bi bi-plus-lg"></i> Crear Cliente
+            </button>
+            <div class="dropdown">
+              <button class="btn-primary-custom dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-lightning"></i> Acciones
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="font-size:0.83rem;">
+                <li><a class="dropdown-item py-2" href="#" onclick="exportClients()"><i class="bi bi-file-earmark-excel text-success me-2"></i>Exportar Excel</a></li>
+                <li><a class="dropdown-item py-2" href="#" onclick="exportPDF()"><i class="bi bi-file-earmark-pdf text-danger me-2"></i>Exportar PDF</a></li>
+                <li><a class="dropdown-item py-2" href="#" onclick="importCSV()"><i class="bi bi-upload text-primary me-2"></i>Importar CSV</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table id="clientsTable" class="table table-hover align-middle" style="width:100%;">
+              <thead>
+                <tr>
+                  <th style="width:36px;"><input type="checkbox" class="form-check-input"></th>
+                  <th>Código</th>
+                  <th>Nombre</th>
+                  <th>Teléfono</th>
+                  <th>Email</th>
+                  <th>Grupo</th>
+                  <th>Saldo</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="clientsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-clients -->
+
+
+      <!-- =============================================
+           PAGE: PURCHASES
+           ============================================= -->
+      <div id="page-purchases" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-bag me-2 text-primary"></i>Compras</h1>
+          <div class="d-flex gap-2">
+            <button class="btn-success-custom" onclick="navigateTo('create-purchase','Crear Compra')">
+              <i class="bi bi-plus-lg"></i> Crear Compra
+            </button>
+            <div class="dropdown">
+              <button class="btn-primary-custom dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-lightning"></i> Acciones
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="font-size:0.83rem;">
+                <li><a class="dropdown-item py-2" href="#" onclick="exportPurchases()"><i class="bi bi-file-earmark-excel text-success me-2"></i>Exportar Excel</a></li>
+                <li><a class="dropdown-item py-2" href="#" onclick="exportPDF()"><i class="bi bi-file-earmark-pdf text-danger me-2"></i>Exportar PDF</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table id="purchasesTable" class="table table-hover align-middle" style="width:100%;">
+              <thead>
+                <tr>
+                  <th>N°</th>
+                  <th>Fecha</th>
+                  <th>Proveedor</th>
+                  <th>Ítems</th>
+                  <th>Total</th>
+                  <th>Pago</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="purchasesTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-purchases -->
+
+
+      <!-- =============================================
+           PAGE: EXPENSES
+           ============================================= -->
+      <div id="page-expenses" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-cash-stack me-2 text-primary"></i>Gastos</h1>
+          <button class="btn-success-custom" onclick="openCreateExpenseModal()">
+            <i class="bi bi-plus-lg"></i> Registrar Gasto
+          </button>
+        </div>
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table id="expensesTable" class="table table-hover align-middle" style="width:100%;">
+              <thead>
+                <tr>
+                  <th>N°</th>
+                  <th>Fecha</th>
+                  <th>Categoría</th>
+                  <th>Descripción</th>
+                  <th>Importe</th>
+                  <th>Forma de pago</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="expensesTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-expenses -->
+
+
+      <!-- =============================================
+           PAGE: SUPPLIERS
+           ============================================= -->
+      <div id="page-suppliers" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-building me-2 text-primary"></i>Proveedores</h1>
+          <button class="btn-success-custom" onclick="openCreateSupplierModal()">
+            <i class="bi bi-plus-lg"></i> Crear Proveedor
+          </button>
+        </div>
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table id="suppliersTable" class="table table-hover align-middle" style="width:100%;">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Nombre</th>
+                  <th>Teléfono</th>
+                  <th>Email</th>
+                  <th>CUIT</th>
+                  <th>Saldo</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="suppliersTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-suppliers -->
+
+
+      <!-- =============================================
+           PAGE: REPORTS — SALES
+           ============================================= -->
+      <div id="page-reports-sales" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-bar-chart-line me-2 text-primary"></i>Informe de Ventas</h1>
+          <div class="d-flex gap-2">
+            <button class="btn-primary-custom" onclick="exportSales()"><i class="bi bi-file-earmark-excel"></i> Exportar</button>
+          </div>
+        </div>
+
+        <!-- Summary stats -->
+        <div class="row g-3 mb-section">
+          <div class="col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon"><i class="bi bi-graph-up-arrow"></i></div>
+              <div class="stat-info">
+                <div class="stat-value">$7.300.000</div>
+                <div class="stat-label">Total vendido (año)</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon orange"><i class="bi bi-receipt"></i></div>
+              <div class="stat-info">
+                <div class="stat-value">29</div>
+                <div class="stat-label">Ventas totales</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon green"><i class="bi bi-cash-coin"></i></div>
+              <div class="stat-info">
+                <div class="stat-value">$251.724</div>
+                <div class="stat-label">Ticket promedio</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon purple"><i class="bi bi-percent"></i></div>
+              <div class="stat-info">
+                <div class="stat-value">62%</div>
+                <div class="stat-label">Margen promedio</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="row g-3 mb-section">
+          <div class="col-12">
+            <div class="vcard">
+              <div class="vcard-title">Ventas por mes — 2026</div>
+              <div class="chart-container" style="height:280px;">
+                <canvas id="reportSalesChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters + table -->
+        <div class="vcard">
+          <div class="vcard-title mb-3">
+            Detalle de ventas
+            <div class="d-flex gap-2">
+              <input type="date" class="form-control form-control-sm" style="width:auto;">
+              <input type="date" class="form-control form-control-sm" style="width:auto;">
+              <button class="btn-primary-custom" style="font-size:0.78rem;padding:5px 12px;"><i class="bi bi-search"></i> Filtrar</button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover table-sm" style="font-size:0.83rem;">
+              <thead>
+                <tr>
+                  <th>N°</th><th>Fecha</th><th>Cliente</th><th>Total</th><th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>#1001</td><td>01/05/2026</td><td>García, Juan Carlos</td><td class="fw-bold">$280.000</td><td><span class="badge bg-success" style="font-size:0.7rem;">Cobrada</span></td></tr>
+                <tr><td>#1002</td><td>01/05/2026</td><td>López, María Fernanda</td><td class="fw-bold">$55.000</td><td><span class="badge bg-success" style="font-size:0.7rem;">Cobrada</span></td></tr>
+                <tr><td>#1003</td><td>30/04/2026</td><td>Martínez, Pedro A.</td><td class="fw-bold">$920.000</td><td><span class="badge bg-warning text-dark" style="font-size:0.7rem;">Pendiente</span></td></tr>
+                <tr><td>#1004</td><td>30/04/2026</td><td>González, Luis M.</td><td class="fw-bold">$145.000</td><td><span class="badge bg-success" style="font-size:0.7rem;">Cobrada</span></td></tr>
+                <tr><td>#1005</td><td>29/04/2026</td><td>Fernández, Ana Laura</td><td class="fw-bold">$380.000</td><td><span class="badge bg-warning text-dark" style="font-size:0.7rem;">Pendiente</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-reports-sales -->
+
+
+      <!-- =============================================
+           PAGE: CREAR PRODUCTO
+           ============================================= -->
+      <div id="page-create-product" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-plus-square me-2 text-success"></i>Crear Producto</h1>
+          <button class="btn-secondary-custom" onclick="navigateTo('products','Lista de Productos')">
+            <i class="bi bi-arrow-left"></i> Volver
+          </button>
+        </div>
+
+        <div class="row g-4">
+          <!-- Columna izquierda: tabs del formulario -->
+          <div class="col-lg-8">
+            <div class="vcard">
+              <!-- Tabs -->
+              <ul class="nav nav-tabs mb-4" id="createProductTabs">
+                <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-general">General</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-precios">Precios</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-stock">Stock</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-imagen">Imagen</button></li>
+              </ul>
+
+              <div class="tab-content">
+                <!-- Tab General -->
+                <div class="tab-pane fade show active" id="tab-general">
+                  <div class="row g-3">
+                    <div class="col-md-8">
+                      <label class="form-label fw-semibold" style="font-size:0.83rem;">Nombre del producto *</label>
+                      <input id="cpf-name" class="form-control" placeholder="Ej: Laptop Pro 15&quot;">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label fw-semibold" style="font-size:0.83rem;">Código</label>
+                      <input id="cpf-code" class="form-control" placeholder="Se genera automáticamente">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label fw-semibold" style="font-size:0.83rem;">Categoría</label>
+                      <select id="cpf-category" class="form-select">
+                        <option value="">— Sin categoría —</option>
+                        <option>Electrónica</option><option>Ropa</option><option>Calzado</option>
+                        <option>Accesorios</option><option>Servicios</option><option>Hogar</option><option>Deportes</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label fw-semibold" style="font-size:0.83rem;">Marca</label>
+                      <select id="cpf-brand" class="form-select">
+                        <option value="">— Sin marca —</option>
+                        <option>Samsung</option><option>Apple</option><option>Nike</option>
+                        <option>Adidas</option><option>Logitech</option><option>Genérico</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label fw-semibold" style="font-size:0.83rem;">Unidad de medida</label>
+                      <select id="cpf-unit" class="form-select">
+                        <option>Unid.</option><option>Par</option><option>Kg</option>
+                        <option>Lt</option><option>Mt</option><option>Serv.</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label fw-semibold" style="font-size:0.83rem;">Tipo de producto</label>
+                      <select id="cpf-type" class="form-select">
+                        <option value="simple">Simple</option>
+                        <option value="compuesto">Compuesto</option>
+                        <option value="servicio">Servicio</option>
+                      </select>
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label fw-semibold" style="font-size:0.83rem;">Descripción</label>
+                      <textarea id="cpf-desc" class="form-control" rows="3" placeholder="Descripción detallada del producto..."></textarea>
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label fw-semibold" style="font-size:0.83rem;">Código de barras</label>
+                      <div class="input-group">
+                        <input id="cpf-barcode" class="form-control" placeholder="Escanear o ingresar manualmente">
+                        <button class="btn btn-outline-secondary" title="Escanear"><i class="bi bi-upc-scan"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Tab Precios -->
+                <div class="tab-pane fade" id="tab-precios">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label fw-semibold" style="font-size:0.83rem;">Precio de costo</label>
+                      <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input id="cpf-cost" class="form-control" type="number" min="0" placeholder="0">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label fw-semibold" style="font-size:0.83rem;">Precio de venta *</label>
+                      <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input id="cpf-price" class="form-control" type="number" min="0" placeholder="0">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label fw-semibold" style="font-size:0.83rem;">Precio mayorista</label>
+                      <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input class="form-control" type="number" min="0" placeholder="0">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label fw-semibold" style="font-size:0.83rem;">IVA</label>
+                      <select class="form-select">
+                        <option>21%</option><option>10.5%</option><option>27%</option><option>Exento</option>
+                      </select>
+                    </div>
+                    <div class="col-12">
+                      <div class="vcard" style="background:linear-gradient(135deg,#e3f8fb,#f0feff);border:1.5px solid #00BCD4;">
+                        <div class="d-flex align-items-center justify-content-between">
+                          <div>
+                            <div style="font-size:0.8rem;color:#6c757d;">Margen de ganancia calculado</div>
+                            <div id="cpf-margin-display" style="font-size:2rem;font-weight:900;color:#6c757d;">—</div>
+                          </div>
+                          <i class="bi bi-percent" style="font-size:2.5rem;color:#00BCD4;opacity:0.3;"></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Tab Stock -->
+                <div class="tab-pane fade" id="tab-stock">
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <label class="form-label fw-semibold" style="font-size:0.83rem;">Stock inicial</label>
+                      <input id="cpf-stock" class="form-control" type="number" min="0" placeholder="0">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label fw-semibold" style="font-size:0.83rem;">Stock mínimo</label>
+                      <input id="cpf-stock-min" class="form-control" type="number" min="0" placeholder="0">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label fw-semibold" style="font-size:0.83rem;">Stock máximo</label>
+                      <input id="cpf-stock-max" class="form-control" type="number" min="0" placeholder="0">
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label fw-semibold" style="font-size:0.83rem;">Depósito / Ubicación</label>
+                      <select class="form-select">
+                        <option>Depósito Principal</option>
+                        <option>Sucursal Norte</option>
+                        <option>Exhibición</option>
+                      </select>
+                    </div>
+                    <div class="col-12">
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="cpf-track-stock" checked>
+                        <label class="form-check-label" for="cpf-track-stock" style="font-size:0.83rem;">Controlar stock de este producto</label>
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="cpf-has-expiry">
+                        <label class="form-check-label" for="cpf-has-expiry" style="font-size:0.83rem;">Este producto tiene fecha de vencimiento</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Tab Imagen -->
+                <div class="tab-pane fade" id="tab-imagen">
+                  <div class="text-center py-4">
+                    <div style="width:120px;height:120px;border-radius:12px;background:#e9ecef;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:3rem;cursor:pointer;border:2px dashed #dee2e6;">
+                      📦
+                    </div>
+                    <p style="font-size:0.84rem;color:#6c757d;">Arrastre una imagen aquí o haga clic para seleccionar</p>
+                    <input type="file" accept="image/*" class="d-none" id="cpf-image-input">
+                    <button class="btn-primary-custom" onclick="document.getElementById('cpf-image-input').click()">
+                      <i class="bi bi-upload me-1"></i> Subir imagen
+                    </button>
+                    <p class="mt-2" style="font-size:0.75rem;color:#adb5bd;">PNG, JPG o GIF. Máx. 2MB.</p>
+                  </div>
+                </div>
+              </div><!-- /tab-content -->
+            </div>
+          </div>
+
+          <!-- Columna derecha: resumen + acciones -->
+          <div class="col-lg-4">
+            <div class="vcard mb-3" style="background:linear-gradient(135deg,#1E2A38,#2e3f52);color:#fff;">
+              <div style="font-size:0.82rem;opacity:0.7;margin-bottom:4px;">Vista previa</div>
+              <div style="font-size:1.1rem;font-weight:700;" id="preview-name">Nuevo producto</div>
+              <div style="font-size:0.8rem;opacity:0.6;margin-bottom:12px;" id="preview-cat">Sin categoría</div>
+              <div class="d-flex justify-content-between">
+                <div>
+                  <div style="font-size:0.75rem;opacity:0.6;">Precio venta</div>
+                  <div style="font-size:1.5rem;font-weight:800;color:#00BCD4;">$0</div>
+                </div>
+                <div>
+                  <div style="font-size:0.75rem;opacity:0.6;">Stock</div>
+                  <div style="font-size:1.5rem;font-weight:800;">0</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="vcard">
+              <div class="vcard-title mb-3">Estado</div>
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="cpf-active" checked>
+                <label class="form-check-label" for="cpf-active" style="font-size:0.83rem;">Producto activo</label>
+              </div>
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="cpf-web">
+                <label class="form-check-label" for="cpf-web" style="font-size:0.83rem;">Publicar en web</label>
+              </div>
+              <div class="form-check form-switch mb-4">
+                <input class="form-check-input" type="checkbox" id="cpf-featured">
+                <label class="form-check-label" for="cpf-featured" style="font-size:0.83rem;">Producto destacado</label>
+              </div>
+              <button class="btn-success-custom w-100 justify-content-center mb-2" onclick="saveNewProduct()">
+                <i class="bi bi-check-lg me-1"></i> Guardar producto
+              </button>
+              <button class="btn-secondary-custom w-100 justify-content-center" onclick="navigateTo('products','Lista de Productos')">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /page-create-product -->
+
+
+      <!-- =============================================
+           PAGE: AJUSTE DE STOCK
+           ============================================= -->
+      <div id="page-stock-adjustment" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-layers me-2 text-primary"></i>Ajuste de Stock</h1>
+          <button class="btn-success-custom" onclick="saveStockAdjustment()">
+            <i class="bi bi-check-lg"></i> Guardar ajuste
+          </button>
+        </div>
+        <div class="table-wrapper">
+          <p class="tutorial-hint"><i class="bi bi-info-circle text-primary me-1"></i>Modifique la columna <strong>Nueva cantidad</strong> y haga clic en "Guardar ajuste".</p>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle" style="font-size:0.83rem;width:100%;">
+              <thead>
+                <tr>
+                  <th>Código</th><th>Nombre</th><th>Categoría</th>
+                  <th>Stock actual</th><th>Nueva cantidad</th><th>Diferencia</th><th>Unidad</th>
+                </tr>
+              </thead>
+              <tbody id="stockAdjTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-stock-adjustment -->
+
+
+      <!-- =============================================
+           PAGE: CATEGORÍAS
+           ============================================= -->
+      <div id="page-categories" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-tags me-2 text-primary"></i>Lista de Categorías</h1>
+          <button class="btn-success-custom" onclick="openCreateCategoryModal()">
+            <i class="bi bi-plus-lg"></i> Nueva Categoría
+          </button>
+        </div>
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table id="categoriesTable" class="table table-hover align-middle" style="width:100%;">
+              <thead><tr><th>Nombre</th><th>Descripción</th><th>Productos</th><th>Estado</th><th>Acciones</th></tr></thead>
+              <tbody id="categoriesTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-categories -->
+
+
+      <!-- =============================================
+           PAGE: MARCAS
+           ============================================= -->
+      <div id="page-brands" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-award me-2 text-primary"></i>Lista de Marcas</h1>
+          <button class="btn-success-custom" onclick="openCreateBrandModal()">
+            <i class="bi bi-plus-lg"></i> Nueva Marca
+          </button>
+        </div>
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table id="brandsTable" class="table table-hover align-middle" style="width:100%;">
+              <thead><tr><th>Nombre</th><th>Productos</th><th>Estado</th><th>Acciones</th></tr></thead>
+              <tbody id="brandsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-brands -->
+
+
+      <!-- =============================================
+           PAGE: UNIDADES
+           ============================================= -->
+      <div id="page-units" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-rulers me-2 text-primary"></i>Lista de Unidades</h1>
+          <button class="btn-success-custom" onclick="openCreateUnitModal()">
+            <i class="bi bi-plus-lg"></i> Nueva Unidad
+          </button>
+        </div>
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table id="unitsTable" class="table table-hover align-middle" style="width:100%;">
+              <thead><tr><th>Nombre</th><th>Abreviación</th><th>Productos</th><th>Acciones</th></tr></thead>
+              <tbody id="unitsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-units -->
+
+
+      <!-- =============================================
+           PAGE: PRESUPUESTOS
+           ============================================= -->
+      <div id="page-budgets" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-file-text me-2 text-primary"></i>Presupuestos</h1>
+          <button class="btn-success-custom" onclick="openCreateBudgetModal()">
+            <i class="bi bi-plus-lg"></i> Nuevo Presupuesto
+          </button>
+        </div>
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table id="budgetsTable" class="table table-hover align-middle" style="width:100%;">
+              <thead><tr><th>N°</th><th>Fecha</th><th>Cliente</th><th>Ítems</th><th>Total</th><th>Vencimiento</th><th>Estado</th><th>Acciones</th></tr></thead>
+              <tbody id="budgetsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-budgets -->
+
+
+      <!-- =============================================
+           PAGE: DEVOLUCIONES
+           ============================================= -->
+      <div id="page-returns" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-arrow-return-left me-2 text-primary"></i>Devoluciones</h1>
+          <button class="btn-success-custom" onclick="navigateTo('create-return','Generar Devolución')">
+            <i class="bi bi-plus-lg"></i> Generar Devolución
+          </button>
+        </div>
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table id="returnsTable" class="table table-hover align-middle" style="width:100%;">
+              <thead><tr><th>N°</th><th>Fecha</th><th>Cliente</th><th>Venta</th><th>Importe</th><th>Motivo</th><th>Estado</th><th>Acciones</th></tr></thead>
+              <tbody id="returnsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-returns -->
+
+
+      <!-- =============================================
+           PAGE: GENERAR DEVOLUCIÓN
+           ============================================= -->
+      <div id="page-create-return" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-arrow-return-left me-2 text-warning"></i>Generar Devolución</h1>
+          <button class="btn-secondary-custom" onclick="navigateTo('returns','Lista de Devoluciones')">
+            <i class="bi bi-arrow-left"></i> Volver
+          </button>
+        </div>
+        <div class="row g-4">
+          <div class="col-lg-7">
+            <div class="vcard">
+              <div class="vcard-title mb-3">Datos de la devolución</div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold" style="font-size:0.83rem;">N° de venta original *</label>
+                  <select class="form-select">
+                    <option value="">— Seleccionar venta —</option>
+                    <option>#1001 — García, Juan Carlos — $280.000</option>
+                    <option>#1002 — López, María — $55.000</option>
+                    <option>#1004 — González, Luis — $145.000</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold" style="font-size:0.83rem;">Fecha</label>
+                  <input type="date" class="form-control" value="2026-05-04">
+                </div>
+                <div class="col-12">
+                  <label class="form-label fw-semibold" style="font-size:0.83rem;">Motivo de la devolución *</label>
+                  <select class="form-select mb-2">
+                    <option>Producto defectuoso</option>
+                    <option>Talla/Medida incorrecta</option>
+                    <option>No cumple expectativas</option>
+                    <option>Error en el pedido</option>
+                    <option>Otro</option>
+                  </select>
+                  <textarea class="form-control" rows="2" placeholder="Detalles adicionales..."></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label fw-semibold" style="font-size:0.83rem;">Tipo de reembolso</label>
+                  <div class="d-flex gap-3">
+                    <div class="form-check"><input class="form-check-input" type="radio" name="refund-type" checked><label class="form-check-label" style="font-size:0.83rem;">Efectivo</label></div>
+                    <div class="form-check"><input class="form-check-input" type="radio" name="refund-type"><label class="form-check-label" style="font-size:0.83rem;">Nota de crédito</label></div>
+                    <div class="form-check"><input class="form-check-input" type="radio" name="refund-type"><label class="form-check-label" style="font-size:0.83rem;">Cambio de producto</label></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="vcard h-100 d-flex flex-column justify-content-between">
+              <div>
+                <div class="vcard-title mb-3">Resumen</div>
+                <div class="d-flex justify-content-between mb-2" style="font-size:0.84rem;"><span class="text-muted">Venta original:</span><strong>— </strong></div>
+                <div class="d-flex justify-content-between mb-2" style="font-size:0.84rem;"><span class="text-muted">Cliente:</span><strong>—</strong></div>
+                <div class="d-flex justify-content-between mb-4" style="font-size:0.84rem;"><span class="text-muted">Importe a devolver:</span><strong class="text-danger" style="font-size:1.1rem;">$0</strong></div>
+              </div>
+              <button class="btn-success-custom w-100 justify-content-center"
+                onclick="Swal.fire({icon:'success',title:'¡Devolución registrada!',text:'La devolución fue procesada correctamente.',confirmButtonColor:'#00BCD4',timer:2000,showConfirmButton:false}).then(()=>navigateTo('returns','Lista de Devoluciones'))">
+                <i class="bi bi-check-lg me-1"></i> Registrar devolución
+              </button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /page-create-return -->
+
+
+      <!-- =============================================
+           PAGE: ESTADO DE CUENTAS
+           ============================================= -->
+      <div id="page-account-status" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-journal-text me-2 text-primary"></i>Estado de Cuentas</h1>
+          <button class="btn-primary-custom" onclick="exportClients()"><i class="bi bi-file-earmark-excel"></i> Exportar</button>
+        </div>
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle" style="font-size:0.83rem;width:100%;">
+              <thead><tr><th>Código</th><th>Cliente</th><th>Grupo</th><th>Ventas</th><th>Total facturado</th><th>Pendiente</th><th>Saldo</th><th>Acciones</th></tr></thead>
+              <tbody id="accountStatusTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-account-status -->
+
+
+      <!-- =============================================
+           PAGE: REGISTRO DE PAGOS
+           ============================================= -->
+      <div id="page-payments-register" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-cash-coin me-2 text-success"></i>Registro de Pagos</h1>
+          <button class="btn-success-custom" onclick="openCreatePaymentModal()"><i class="bi bi-plus-lg"></i> Registrar Pago</button>
+        </div>
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table id="paymentsTable" class="table table-hover align-middle" style="width:100%;">
+              <thead><tr><th>N°</th><th>Fecha</th><th>Cliente</th><th>Venta</th><th>Importe</th><th>Método</th><th>Usuario</th><th>Acciones</th></tr></thead>
+              <tbody id="paymentsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-payments-register -->
+
+
+      <!-- =============================================
+           PAGE: MOVIMIENTOS DE CAJA
+           ============================================= -->
+      <div id="page-cash-movements" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-arrow-left-right me-2 text-primary"></i>Movimientos de Caja</h1>
+          <div class="d-flex gap-2">
+            <button class="btn-success-custom" onclick="openNewCashMovementModal()"><i class="bi bi-plus-lg"></i> Nuevo movimiento</button>
+            <button class="btn-primary-custom" onclick="exportCashMovements()"><i class="bi bi-file-earmark-excel"></i> Exportar</button>
+          </div>
+        </div>
+
+        <!-- Summary cards -->
+        <div class="row g-3 mb-section">
+          <div class="col-md-4">
+            <div class="stat-card">
+              <div class="stat-icon green"><i class="bi bi-arrow-up-circle-fill"></i></div>
+              <div class="stat-info"><div class="stat-value" id="cashMovIngresos">—</div><div class="stat-label">Total ingresos</div></div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="stat-card">
+              <div class="stat-icon red"><i class="bi bi-arrow-down-circle-fill"></i></div>
+              <div class="stat-info"><div class="stat-value" id="cashMovEgresos">—</div><div class="stat-label">Total egresos</div></div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="stat-card">
+              <div class="stat-icon"><i class="bi bi-wallet2"></i></div>
+              <div class="stat-info"><div class="stat-value" id="cashMovSaldo">—</div><div class="stat-label">Saldo actual</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table id="cashMovTable" class="table table-hover align-middle" style="width:100%;">
+              <thead><tr><th>Fecha/Hora</th><th>Tipo</th><th>Descripción</th><th>Caja</th><th>Importe</th><th>Saldo acum.</th><th>Usuario</th></tr></thead>
+              <tbody id="cashMovTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-cash-movements -->
+
+
+      <!-- =============================================
+           PAGE: INFORME DE CAJA
+           ============================================= -->
+      <div id="page-cash-report" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-safe2 me-2 text-primary"></i>Informe de Caja</h1>
+          <div class="d-flex gap-2 align-items-center">
+            <input type="date" class="form-control form-control-sm" style="width:auto;" value="2026-04-25">
+            <input type="date" class="form-control form-control-sm" style="width:auto;" value="2026-05-04">
+            <button class="btn-primary-custom" style="font-size:0.8rem;"><i class="bi bi-search"></i> Filtrar</button>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-section">
+          <div class="col-md-3"><div class="stat-card"><div class="stat-icon green"><i class="bi bi-graph-up-arrow"></i></div><div class="stat-info"><div class="stat-value">$4.640.000</div><div class="stat-label">Total ingresos</div></div></div></div>
+          <div class="col-md-3"><div class="stat-card"><div class="stat-icon red"><i class="bi bi-graph-down-arrow"></i></div><div class="stat-info"><div class="stat-value">$1.305.000</div><div class="stat-label">Total egresos</div></div></div></div>
+          <div class="col-md-3"><div class="stat-card"><div class="stat-icon"><i class="bi bi-wallet2"></i></div><div class="stat-info"><div class="stat-value">$3.335.000</div><div class="stat-label">Saldo período</div></div></div></div>
+          <div class="col-md-3"><div class="stat-card"><div class="stat-icon purple"><i class="bi bi-calendar-check"></i></div><div class="stat-info"><div class="stat-value">10</div><div class="stat-label">Días analizados</div></div></div></div>
+        </div>
+
+        <div class="vcard">
+          <div class="vcard-title">Ingresos vs Egresos — últimos 10 días</div>
+          <div class="chart-container" style="height:300px;">
+            <canvas id="cashReportChart"></canvas>
+          </div>
+        </div>
+      </div><!-- /page-cash-report -->
+
+
+      <!-- =============================================
+           PAGE: ALERTAS DE STOCK
+           ============================================= -->
+      <div id="page-stock-alerts" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-exclamation-triangle me-2 text-danger"></i>Alertas de Stock</h1>
+          <button class="btn-primary-custom" onclick="navigateTo('purchases','Lista de Compras')">
+            <i class="bi bi-bag-plus"></i> Ir a Compras
+          </button>
+        </div>
+
+        <div class="alert d-flex align-items-center gap-2 mb-3" style="background:#fff5f5;border:1.5px solid #f5c6cb;border-radius:10px;font-size:0.84rem;">
+          <i class="bi bi-exclamation-circle-fill text-danger" style="font-size:1.2rem;"></i>
+          <span><strong>7 productos</strong> tienen stock por debajo del mínimo configurado. Se recomienda reponer urgente.</span>
+        </div>
+
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle" style="font-size:0.83rem;width:100%;">
+              <thead><tr><th>Código</th><th>Producto</th><th>Categoría</th><th>Stock actual</th><th>Stock mín.</th><th>Unidad</th><th>Acción</th></tr></thead>
+              <tbody id="stockAlertsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-stock-alerts -->
+
+
+      <!-- =============================================
+           PAGE: STOCK VALORIZADO
+           ============================================= -->
+      <div id="page-stock-valued" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-currency-dollar me-2 text-success"></i>Stock Valorizado</h1>
+          <button class="btn-primary-custom" onclick="exportTableCSV('stockValuedTable','stock_valorizado')"><i class="bi bi-file-earmark-excel"></i> Exportar</button>
+        </div>
+
+        <div class="row g-3 mb-section">
+          <div class="col-md-4">
+            <div class="stat-card">
+              <div class="stat-icon orange"><i class="bi bi-box-seam"></i></div>
+              <div class="stat-info"><div class="stat-value" id="svTotalCost">—</div><div class="stat-label">Valor al costo</div></div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="stat-card">
+              <div class="stat-icon"><i class="bi bi-tags"></i></div>
+              <div class="stat-info"><div class="stat-value" id="svTotalRetail">—</div><div class="stat-label">Valor de venta</div></div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="stat-card">
+              <div class="stat-icon green"><i class="bi bi-graph-up-arrow"></i></div>
+              <div class="stat-info"><div class="stat-value" id="svTotalGain">—</div><div class="stat-label">Ganancia potencial</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table id="stockValuedTable" class="table table-hover align-middle" style="width:100%;">
+              <thead><tr><th>Código</th><th>Producto</th><th>Categoría</th><th>Stock</th><th>P. Costo</th><th>P. Venta</th><th>Val. Costo</th><th>Val. Venta</th><th>Margen</th></tr></thead>
+              <tbody id="stockValuedTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-stock-valued -->
+
+
+      <!-- =============================================
+           PAGE: BUSINESS INTELLIGENCE — RANKINGS
+           ============================================= -->
+      <div id="page-bi-rankings" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-graph-up me-2 text-primary"></i>Business Intelligence</h1>
+        </div>
+
+        <!-- Tabs BI -->
+        <ul class="nav nav-pills mb-4 gap-1" id="biTabs">
+          <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#bi-products" style="font-size:0.83rem;"><i class="bi bi-box-seam me-1"></i>Ranking de Productos</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#bi-clients" style="font-size:0.83rem;"><i class="bi bi-people me-1"></i>Ranking de Clientes</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#bi-suppliers" style="font-size:0.83rem;"><i class="bi bi-building me-1"></i>Ranking de Proveedores</button></li>
+        </ul>
+
+        <div class="tab-content">
+          <!-- Products ranking -->
+          <div class="tab-pane fade show active" id="bi-products">
+            <div class="row g-3">
+              <div class="col-lg-8">
+                <div class="vcard">
+                  <div class="vcard-title">Productos más vendidos (unidades)</div>
+                  <div class="chart-container" style="height:280px;"><canvas id="biProductChart"></canvas></div>
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <div class="vcard h-100">
+                  <div class="vcard-title mb-3">Top 5 productos</div>
+                  <table class="table table-sm" style="font-size:0.82rem;">
+                    <tbody>
+                      <tr><td><span class="badge bg-warning text-dark">1</span></td><td>Mouse Inalámbrico</td><td class="fw-bold text-end">28 u.</td></tr>
+                      <tr><td><span class="badge bg-secondary">2</span></td><td>Auriculares BT</td><td class="fw-bold text-end">18 u.</td></tr>
+                      <tr><td><span class="badge bg-secondary">3</span></td><td>Mochila Urbana</td><td class="fw-bold text-end">18 u.</td></tr>
+                      <tr><td><span class="badge bg-secondary">4</span></td><td>Teclado RGB</td><td class="fw-bold text-end">12 u.</td></tr>
+                      <tr><td><span class="badge bg-secondary">5</span></td><td>Monitor 24"</td><td class="fw-bold text-end">8 u.</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Clients ranking -->
+          <div class="tab-pane fade" id="bi-clients">
+            <div class="row g-3">
+              <div class="col-lg-8">
+                <div class="vcard">
+                  <div class="vcard-title">Clientes por volumen de compra</div>
+                  <div class="chart-container" style="height:260px;"><canvas id="biClientChart"></canvas></div>
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <div class="vcard h-100">
+                  <div class="vcard-title mb-3">Top clientes</div>
+                  <table class="table table-sm" style="font-size:0.82rem;">
+                    <tbody>
+                      <tr><td><span class="badge bg-warning text-dark">1</span></td><td>Martínez, P.</td><td class="fw-bold text-end">$920.000</td></tr>
+                      <tr><td><span class="badge bg-secondary">2</span></td><td>García, J.</td><td class="fw-bold text-end">$725.000</td></tr>
+                      <tr><td><span class="badge bg-secondary">3</span></td><td>Fernández, A.</td><td class="fw-bold text-end">$380.000</td></tr>
+                      <tr><td><span class="badge bg-secondary">4</span></td><td>González, L.</td><td class="fw-bold text-end">$145.000</td></tr>
+                      <tr><td><span class="badge bg-secondary">5</span></td><td>Rodríguez, C.</td><td class="fw-bold text-end">$75.000</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Suppliers ranking -->
+          <div class="tab-pane fade" id="bi-suppliers">
+            <div class="row g-3">
+              <div class="col-lg-6">
+                <div class="vcard">
+                  <div class="vcard-title">Proveedores por volumen de compra</div>
+                  <div class="chart-container" style="height:260px;"><canvas id="biSupplierChart"></canvas></div>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="vcard h-100">
+                  <div class="vcard-title mb-3">Detalle proveedores</div>
+                  <table class="table table-sm" style="font-size:0.82rem;">
+                    <thead><tr><th>#</th><th>Proveedor</th><th>Compras</th><th>Total</th></tr></thead>
+                    <tbody>
+                      <tr><td><span class="badge bg-warning text-dark">1</span></td><td>Electro Global</td><td>1</td><td class="fw-bold">$920.000</td></tr>
+                      <tr><td><span class="badge bg-secondary">2</span></td><td>TechDistribuidor SA</td><td>1</td><td class="fw-bold">$640.000</td></tr>
+                      <tr><td><span class="badge bg-secondary">3</span></td><td>Proveedor Nacional</td><td>1</td><td class="fw-bold">$230.000</td></tr>
+                      <tr><td><span class="badge bg-secondary">4</span></td><td>Moda Import SRL</td><td>1</td><td class="fw-bold">$185.000</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /page-bi-rankings -->
+
+
+      <!-- =============================================
+           PAGE: GANANCIAS / PÉRDIDAS
+           ============================================= -->
+      <div id="page-profit-loss" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-graph-up-arrow me-2 text-success"></i>Ganancias / Pérdidas</h1>
+          <button class="btn-primary-custom" onclick="exportPDF()"><i class="bi bi-file-earmark-excel"></i> Exportar</button>
+        </div>
+
+        <div class="row g-3 mb-section">
+          <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-icon green"><i class="bi bi-arrow-up-circle-fill"></i></div><div class="stat-info"><div class="stat-value" id="plTotSales">—</div><div class="stat-label">Ventas</div></div></div></div>
+          <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-icon orange"><i class="bi bi-bag"></i></div><div class="stat-info"><div class="stat-value" id="plTotCost">—</div><div class="stat-label">Costos</div></div></div></div>
+          <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-icon red"><i class="bi bi-cash-stack"></i></div><div class="stat-info"><div class="stat-value" id="plTotExp">—</div><div class="stat-label">Gastos</div></div></div></div>
+          <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-icon purple"><i class="bi bi-percent"></i></div><div class="stat-info"><div class="stat-value" id="plTotMargin">—</div><div class="stat-label">Margen</div></div></div></div>
+        </div>
+
+        <div class="vcard mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <div class="vcard-title mb-0">Ganancia neta acumulada</div>
+            <span id="plTotProfit" style="font-size:1.6rem;font-weight:900;color:#28A745;">—</span>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-section">
+          <div class="col-12">
+            <div class="vcard">
+              <div class="vcard-title">Ventas / Costos / Gastos / Ganancia por mes</div>
+              <div class="chart-container" style="height:280px;"><canvas id="profitLossChart"></canvas></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <div class="vcard-title mb-3">Detalle mensual</div>
+          <div class="table-responsive">
+            <table class="table table-hover table-sm align-middle" style="font-size:0.83rem;">
+              <thead><tr><th>Mes</th><th>Ventas</th><th>Costos</th><th>Gastos</th><th>Ganancia neta</th><th>Margen</th></tr></thead>
+              <tbody id="profitLossTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-profit-loss -->
+
+
+      <!-- =============================================
+           PAGE: CREAR COMPRA
+           ============================================= -->
+      <div id="page-create-purchase" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-bag-plus me-2 text-primary"></i>Crear Compra</h1>
+          <button class="btn-secondary-custom" onclick="navigateTo('purchases','Lista de Compras')">
+            <i class="bi bi-arrow-left"></i> Volver
+          </button>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-lg-8">
+            <!-- Header form -->
+            <div class="vcard mb-3">
+              <div class="vcard-title mb-3">Datos del encabezado</div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold" style="font-size:0.83rem;">Proveedor *</label>
+                  <select id="cp-supplier" class="form-select">
+                    <option value="">— Seleccionar proveedor —</option>
+                    <option>TechDistribuidor SA</option>
+                    <option>Moda Import SRL</option>
+                    <option>Electro Global</option>
+                    <option>Proveedor Nacional</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold" style="font-size:0.83rem;">Término de pago</label>
+                  <select id="cp-payment-term" class="form-select">
+                    <option>Contado</option>
+                    <option>Crédito 30 días</option>
+                    <option>Crédito 60 días</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold" style="font-size:0.83rem;">Fecha de compra</label>
+                  <input type="date" class="form-control" value="2026-05-04">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold" style="font-size:0.83rem;">N° de factura proveedor</label>
+                  <input type="text" class="form-control" placeholder="Opcional">
+                </div>
+                <div class="col-12">
+                  <label class="form-label fw-semibold" style="font-size:0.83rem;">Observaciones</label>
+                  <textarea class="form-control" rows="2" placeholder="Notas internas..."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lines -->
+            <div class="vcard">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="vcard-title mb-0">Ítems de la compra</div>
+                <button class="btn-primary-custom" style="font-size:0.8rem;padding:6px 12px;" onclick="addPurchaseLine()">
+                  <i class="bi bi-plus-lg"></i> Agregar ítem
+                </button>
+              </div>
+              <div id="purchaseLines"></div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="vcard">
+              <div class="vcard-title mb-3">Acciones</div>
+              <button class="btn-success-custom w-100 justify-content-center mb-2" onclick="savePurchase()">
+                <i class="bi bi-check-lg me-1"></i> Guardar compra
+              </button>
+              <button class="btn-secondary-custom w-100 justify-content-center" onclick="navigateTo('purchases','Lista de Compras')">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /page-create-purchase -->
+
+
+      <!-- =============================================
+           PAGE: LIBROS CONTABLES
+           ============================================= -->
+      <div id="page-accounting" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-book me-2 text-primary"></i>Libros Contables</h1>
+          <div class="d-flex gap-2">
+            <button class="btn-success-custom" onclick="openNewAccountingEntryModal()"><i class="bi bi-plus-lg"></i> Nuevo asiento</button>
+            <button class="btn-primary-custom" onclick="exportAccounting()"><i class="bi bi-file-earmark-excel"></i> Exportar</button>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table id="accountingTable" class="table table-hover align-middle" style="width:100%;">
+              <thead><tr><th>Fecha</th><th>Cuenta</th><th>Descripción</th><th class="text-end">Débito</th><th class="text-end">Crédito</th><th>Referencia</th></tr></thead>
+              <tbody id="accountingTbody"></tbody>
+              <tfoot id="accountingTfoot"></tfoot>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-accounting -->
+
+
+      <!-- =============================================
+           PAGE: TÉRMINOS DE PAGO
+           ============================================= -->
+      <div id="page-payment-terms" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-calendar-check me-2 text-primary"></i>Términos de Pago</h1>
+          <button class="btn-success-custom" onclick="openCreatePaymentTermModal()"><i class="bi bi-plus-lg"></i> Nuevo término</button>
+        </div>
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table id="payTermsTable" class="table table-hover align-middle" style="width:100%;">
+              <thead><tr><th>Nombre</th><th>Plazo</th><th>Descuento</th><th>Aplica a</th><th>Acciones</th></tr></thead>
+              <tbody id="payTermsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-payment-terms -->
+
+
+      <!-- =============================================
+           PAGE: LISTA DE CAJAS
+           ============================================= -->
+      <div id="page-cash-registers" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-safe2 me-2 text-primary"></i>Lista de Cajas</h1>
+          <button class="btn-success-custom" onclick="openCreateCashRegisterModal()"><i class="bi bi-plus-lg"></i> Nueva Caja</button>
+        </div>
+        <div class="row g-3" id="cashRegistersGrid"></div>
+      </div><!-- /page-cash-registers -->
+
+
+      <!-- =============================================
+           PAGE: REMISIONES
+           ============================================= -->
+      <div id="page-remissions" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-truck me-2 text-primary"></i>Lista de Remisiones</h1>
+          <button class="btn-success-custom" onclick="openCreateRemissionModal()"><i class="bi bi-plus-lg"></i> Nueva Remisión</button>
+        </div>
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table id="remissionsTable" class="table table-hover align-middle" style="width:100%;">
+              <thead><tr><th>N°</th><th>Fecha</th><th>Cliente</th><th>Destino</th><th>Ítems</th><th>Estado</th><th>Acciones</th></tr></thead>
+              <tbody id="remissionsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-remissions -->
+
+
+      <!-- =============================================
+           PAGE: COMISIONES
+           ============================================= -->
+      <div id="page-commissions" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-star me-2 text-warning"></i>Comisiones por Venta</h1>
+          <div class="d-flex gap-2 align-items-center">
+            <select class="form-select form-select-sm" style="width:auto;font-size:0.83rem;">
+              <option>Mayo 2026</option><option>Abril 2026</option><option>Marzo 2026</option>
+            </select>
+            <button class="btn-primary-custom" style="font-size:0.8rem;"><i class="bi bi-search"></i> Filtrar</button>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle" style="font-size:0.83rem;">
+              <thead><tr><th>Vendedor</th><th>Ventas</th><th>Total vendido</th><th>% Comisión</th><th>Comisión</th><th>Acción</th></tr></thead>
+              <tbody id="commissionsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-commissions -->
+
+
+      <!-- =============================================
+           PAGE: NOTAS DE DÉBITO
+           ============================================= -->
+      <div id="page-debit-notes" class="page">
+        <div class="page-header">
+          <h1 class="page-title"><i class="bi bi-file-earmark-plus me-2 text-danger"></i>Notas de Débito</h1>
+          <button class="btn-success-custom" onclick="openCreateDebitNoteModal()"><i class="bi bi-plus-lg"></i> Generar Nota de Débito</button>
+        </div>
+        <div class="table-wrapper">
+          <div class="table-responsive">
+            <table id="debitNotesTable" class="table table-hover align-middle" style="width:100%;">
+              <thead><tr><th>N°</th><th>Fecha</th><th>Cliente</th><th>Venta orig.</th><th>Importe</th><th>Motivo</th><th>Estado</th><th>Acciones</th></tr></thead>
+              <tbody id="debitNotesTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-debit-notes -->
+
+
+    </div><!-- /page-content -->
+
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+      <div>
+        <span class="footer-plan">Plan Básico</span>
+      </div>
+      <div>Tiempo de carga: <strong id="loadTime">...</strong></div>
+      <div>Core <strong>1.0</strong></div>
+    </footer>
+
+  </div><!-- /main-content -->
+
+</div><!-- /wrapper -->
+
+
+<!-- =============================================
+     SCRIPTS
+     ============================================= -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+<script src="js/dashboard.js"></script>
+<script src="js/pages.js"></script>
+<script src="js/pages2.js"></script>
+<script src="js/actions.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+  // Init Select2 on POS client select
+  $(document).ready(function () {
+    // Select2 will init when POS page is shown
+  });
+
+  function confirmLogout() {
+    Swal.fire({
+      title: '¿Cerrar sesión?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#DC3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, salir',
+      cancelButtonText: 'Cancelar',
+    }).then(r => {
+      if (r.isConfirmed) {
+        Swal.fire({ icon: 'success', title: 'Sesión cerrada', timer: 1400, showConfirmButton: false });
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
