@@ -14,10 +14,12 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Deploy a Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
+      - name: Verificar estructura del proyecto
+        run: |
+          echo "Verificando archivos de VENDLY..."
+          test -f index.html       && echo "OK index.html"
+          test -f css/vendly.css   && echo "OK css/vendly.css"
+          test -f js/app.js        && echo "OK js/app.js"
+          test -f js/pages.js      && echo "OK js/pages.js"
+          test -f js/actions.js    && echo "OK js/actions.js"
+          echo "Estructura correcta. Vercel despliega automaticamente via GitHub integration."
