@@ -105,6 +105,7 @@ function navigateTo(pageId, label) {
     'remissions':        initRemissionsPage,
     'commissions':       initCommissionsPage,
     'debit-notes':       initDebitNotesPage,
+    'admin':             initAdminPage,
   };
   if (pageInits[pageId]) pageInits[pageId]();
 
@@ -163,10 +164,5 @@ function initNotifications() {
 
 // ---- Init App ----
 document.addEventListener('DOMContentLoaded', () => {
-  initSidebar();
-  bindNavLinks();
-  initAccordion();
-  setFooterLoadTime();
-  initNotifications();
-  initDashboard();
+  initAuth(); // auth.js verifica sesión y llama initDashboard() cuando corresponde
 });
