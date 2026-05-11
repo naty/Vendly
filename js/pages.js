@@ -5,22 +5,9 @@
 'use strict';
 
 // =============================================
-// SAMPLE DATA
+// DATA (cargado desde Supabase)
 // =============================================
-const PRODUCTS = [
-  { id: 1, img: '', code: 'PRD-001', name: 'Laptop Pro 15"', category: 'Electrónica', cost: 850000, price: 1200000, qty: 12, unit: 'Unid.', type: 'simple' },
-  { id: 2, img: '', code: 'PRD-002', name: 'Mouse Inalámbrico', category: 'Electrónica', cost: 15000, price: 28000, qty: 45, unit: 'Unid.', type: 'simple' },
-  { id: 3, img: '', code: 'PRD-003', name: 'Teclado Mecánico RGB', category: 'Electrónica', cost: 32000, price: 55000, qty: 28, unit: 'Unid.', type: 'simple' },
-  { id: 4, img: '', code: 'PRD-004', name: 'Monitor 24" Full HD', category: 'Electrónica', cost: 180000, price: 290000, qty: 8, unit: 'Unid.', type: 'simple' },
-  { id: 5, img: '', code: 'PRD-005', name: 'Remera Básica Blanca', category: 'Ropa', cost: 4500, price: 9500, qty: 80, unit: 'Unid.', type: 'simple' },
-  { id: 6, img: '', code: 'PRD-006', name: 'Pantalón Jean Slim', category: 'Ropa', cost: 12000, price: 24000, qty: 35, unit: 'Unid.', type: 'simple' },
-  { id: 7, img: '', code: 'PRD-007', name: 'Mochila Urbana 25L', category: 'Accesorios', cost: 18000, price: 35000, qty: 22, unit: 'Unid.', type: 'compuesto' },
-  { id: 8, img: '', code: 'PRD-008', name: 'Servicio Técnico PC', category: 'Servicios', cost: 0, price: 15000, qty: 999, unit: 'Serv.', type: 'servicio' },
-  { id: 9, img: '', code: 'PRD-009', name: 'Cable HDMI 2m', category: 'Electrónica', cost: 2800, price: 5500, qty: 60, unit: 'Unid.', type: 'simple' },
-  { id: 10, img: '', code: 'PRD-010', name: 'Auriculares Bluetooth', category: 'Electrónica', cost: 22000, price: 42000, qty: 18, unit: 'Unid.', type: 'simple' },
-  { id: 11, img: '', code: 'PRD-011', name: 'Zapatillas Running', category: 'Calzado', cost: 38000, price: 75000, qty: 14, unit: 'Par', type: 'simple' },
-  { id: 12, img: '', code: 'PRD-012', name: 'Camisa Oxford', category: 'Ropa', cost: 9500, price: 19000, qty: 42, unit: 'Unid.', type: 'simple' },
-];
+let PRODUCTS = [];
 
 const CLIENTS = [
   { id: 1, code: 'CLI-001', name: 'García, Juan Carlos', phone: '011-4523-1234', email: 'jgarcia@mail.com', group: 'Mayorista', balance: 45000, status: 'activo' },
@@ -83,9 +70,24 @@ function initProductsPage() {
   renderProductsTable();
 }
 
-function renderProductsTable() {
+async function renderProductsTable() {
   const tbody = document.getElementById('productsTbody');
   if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="11" class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Cargando productos...</td></tr>';
+
+  const { data, error } = await db.from('productos').select('*').order('name');
+  if (error) {
+    tbody.innerHTML = `<tr><td colspan="11" class="text-center text-danger py-3">Error al cargar productos: ${error.message}</td></tr>`;
+    return;
+  }
+  PRODUCTS = data;
+
+  if (PRODUCTS.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted py-4">No hay productos cargados. Creá el primero.</td></tr>';
+    if (productsDT) { productsDT.destroy(); productsDT = null; }
+    return;
+  }
 
   tbody.innerHTML = PRODUCTS.map(p => `
     <tr>
@@ -180,15 +182,18 @@ function editProduct(id) {
     cancelButtonColor: '#6c757d',
     confirmButtonText: 'Guardar',
     cancelButtonText: 'Cancelar',
-    preConfirm: () => {
-      p.name = document.getElementById('swal-name').value;
-      p.price = parseFloat(document.getElementById('swal-price').value);
-      p.qty = parseInt(document.getElementById('swal-stock').value);
+    preConfirm: async () => {
+      const name  = document.getElementById('swal-name').value.trim();
+      const price = parseFloat(document.getElementById('swal-price').value) || 0;
+      const qty   = parseInt(document.getElementById('swal-stock').value) || 0;
+      if (!name) { Swal.showValidationMessage('El nombre es obligatorio'); return false; }
+      const { error } = await db.from('productos').update({ name, price, qty }).eq('id', id);
+      if (error) { Swal.showValidationMessage('Error: ' + error.message); return false; }
       return true;
     },
   }).then(r => {
     if (r.isConfirmed) {
-      Swal.fire({ icon: 'success', title: 'Guardado', text: 'Producto actualizado.', confirmButtonColor: '#00BCD4', timer: 1800, showConfirmButton: false });
+      Swal.fire({ icon: 'success', title: 'Guardado', timer: 1800, showConfirmButton: false });
       renderProductsTable();
     }
   });
@@ -197,10 +202,12 @@ function editProduct(id) {
 function duplicateProduct(id) {
   const p = PRODUCTS.find(x => x.id === id);
   if (!p) return;
-  const newP = { ...p, id: PRODUCTS.length + 1, code: 'PRD-' + String(PRODUCTS.length + 1).padStart(3, '0'), name: p.name + ' (Copia)' };
-  PRODUCTS.push(newP);
-  renderProductsTable();
-  Swal.fire({ icon: 'success', title: 'Duplicado', timer: 1400, showConfirmButton: false });
+  db.from('productos').insert({ code: '', name: p.name + ' (Copia)', category: p.category, cost: p.cost, price: p.price, qty: p.qty, unit: p.unit, type: p.type, img: p.img })
+    .then(({ error }) => {
+      if (error) { showToast('Error al duplicar: ' + error.message, 'error'); return; }
+      Swal.fire({ icon: 'success', title: 'Duplicado', timer: 1400, showConfirmButton: false });
+      renderProductsTable();
+    });
 }
 
 function deleteProduct(id) {
@@ -213,10 +220,10 @@ function deleteProduct(id) {
     cancelButtonColor: '#6c757d',
     confirmButtonText: 'Sí, eliminar',
     cancelButtonText: 'Cancelar',
-  }).then(r => {
+  }).then(async r => {
     if (r.isConfirmed) {
-      const idx = PRODUCTS.findIndex(x => x.id === id);
-      if (idx > -1) PRODUCTS.splice(idx, 1);
+      const { error } = await db.from('productos').delete().eq('id', id);
+      if (error) { showToast('Error al eliminar: ' + error.message, 'error'); return; }
       renderProductsTable();
       Swal.fire({ icon: 'success', title: 'Eliminado', timer: 1400, showConfirmButton: false });
     }
@@ -268,16 +275,16 @@ function openCreateProductModal() {
     cancelButtonColor: '#6c757d',
     confirmButtonText: '<i class="bi bi-plus-lg me-1"></i> Crear',
     cancelButtonText: 'Cancelar',
-    preConfirm: () => {
-      const name = document.getElementById('cp-name').value.trim();
+    preConfirm: async () => {
+      const name  = document.getElementById('cp-name').value.trim();
       if (!name) { Swal.showValidationMessage('El nombre es obligatorio'); return false; }
-      const cost = parseFloat(document.getElementById('cp-cost').value) || 0;
+      const cost  = parseFloat(document.getElementById('cp-cost').value) || 0;
       const price = parseFloat(document.getElementById('cp-price').value) || 0;
-      const stock = parseInt(document.getElementById('cp-stock').value) || 0;
-      const cat = document.getElementById('cp-cat').value.trim() || 'Sin categoría';
-      const type = document.getElementById('cp-type').value;
-      const newId = PRODUCTS.length + 1;
-      PRODUCTS.push({ id: newId, img: '', code: 'PRD-' + String(newId).padStart(3, '0'), name, category: cat, cost, price, qty: stock, unit: 'Unid.', type });
+      const qty   = parseInt(document.getElementById('cp-stock').value) || 0;
+      const category = document.getElementById('cp-cat').value.trim() || 'Sin categoría';
+      const type  = document.getElementById('cp-type').value;
+      const { error } = await db.from('productos').insert({ name, category, cost, price, qty, unit: 'Unid.', type, img: '', code: '' });
+      if (error) { Swal.showValidationMessage('Error al guardar: ' + error.message); return false; }
       return true;
     },
   }).then(r => {
