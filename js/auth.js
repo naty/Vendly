@@ -26,6 +26,11 @@ async function initAuth() {
 }
 
 function onAuthReady() {
+  if (currentUser.email === ADMIN_EMAIL) {
+    window.location.href = '/admin.html';
+    return;
+  }
+
   document.getElementById('loginOverlay').style.display = 'none';
   document.getElementById('appWrapper').style.display = 'flex';
 

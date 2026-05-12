@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VENDLY — Panel de Administración</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+  <style>
+    * { font-family: 'Roboto', sans-serif; }
+    body { background: #F0F2F5; margin: 0; }
+
+    /* LOGIN */
+    #loginOverlay {
+      display: flex; position: fixed; inset: 0;
+      background: linear-gradient(135deg, #1E2A38 0%, #0d1b2a 100%);
+      z-index: 9999; align-items: center; justify-content: center;
+    }
+
+    /* LAYOUT */
+    #adminApp { display: none; min-height: 100vh; }
+
+    /* SIDEBAR */
+    .ad-sidebar {
+      width: 240px; min-height: 100vh; background: #1E2A38;
+      position: fixed; top: 0; left: 0; z-index: 100;
+      display: flex; flex-direction: column;
+    }
+    .ad-logo {
+      padding: 24px 20px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .ad-logo-text { font-size: 1.5rem; font-weight: 900; }
+    .ad-logo-text span:first-child { color: #00BCD4; }
+    .ad-logo-text span:last-child  { color: #FF6B00; }
+    .ad-logo-sub { color: rgba(255,255,255,0.4); font-size: 0.72rem; margin-top: 2px; }
+
+    .ad-nav { padding: 12px 0; flex: 1; }
+    .ad-nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 20px; color: rgba(255,255,255,0.6);
+      cursor: pointer; transition: all 0.15s; font-size: 0.88rem;
+      border-left: 3px solid transparent;
+    }
+    .ad-nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+    .ad-nav-item.active { background: rgba(0,188,212,0.12); color: #00BCD4; border-left-color: #00BCD4; }
+    .ad-nav-item i { font-size: 1.1rem; width: 20px; text-align: center; }
+
+    .ad-sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .ad-user { display: flex; align-items: center; gap: 10px; }
+    .ad-user img { width: 36px; height: 36px; border-radius: 50%; }
+    .ad-user-name { color: #fff; font-size: 0.82rem; font-weight: 600; }
+    .ad-user-role { color: rgba(255,255,255,0.4); font-size: 0.72rem; }
+
+    /* MAIN */
+    .ad-main { margin-left: 240px; min-height: 100vh; }
+    .ad-topbar {
+      background: #fff; padding: 16px 28px;
+      border-bottom: 1px solid #e9ecef;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .ad-page-title { font-size: 1.1rem; font-weight: 700; color: #1E2A38; margin: 0; }
+    .ad-content { padding: 28px; }
+
+    /* CARDS */
+    .ad-kpi {
+      background: #fff; border-radius: 14px; padding: 22px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .ad-kpi-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; margin-bottom: 14px;
+    }
+    .ad-kpi-value { font-size: 1.7rem; font-weight: 800; color: #1E2A38; line-height: 1; }
+    .ad-kpi-label { font-size: 0.78rem; color: #6c757d; margin-top: 4px; }
+    .ad-kpi-trend { font-size: 0.75rem; margin-top: 8px; }
+
+    .ad-card {
+      background: #fff; border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden;
+    }
+    .ad-card-header {
+      padding: 18px 22px; border-bottom: 1px solid #f0f0f0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .ad-card-title { font-size: 0.95rem; font-weight: 700; color: #1E2A38; margin: 0; }
+    .ad-card-body { padding: 22px; }
+
+    /* BADGES */
+    .badge-active   { background: #D1FAE5; color: #065F46; }
+    .badge-pending  { background: #FEF3C7; color: #92400E; }
+    .badge-suspended{ background: #FEE2E2; color: #991B1B; }
+
+    /* SECTION */
+    .ad-section { display: none; }
+    .ad-section.active { display: block; }
+
+    /* TABLE */
+    table.dataTable thead th { font-size: 0.78rem; color: #6c757d; font-weight: 600; border-bottom: 2px solid #f0f0f0; }
+    table.dataTable tbody td { font-size: 0.83rem; vertical-align: middle; }
+
+    .btn-ad-primary { background: #00BCD4; color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-weight: 600; font-size: 0.85rem; }
+    .btn-ad-primary:hover { background: #0097a7; color: #fff; }
+    .btn-ad-success { background: #28A745; color: #fff; border: none; border-radius: 8px; padding: 6px 14px; font-weight: 600; font-size: 0.8rem; }
+    .btn-ad-danger  { background: #DC3545; color: #fff; border: none; border-radius: 8px; padding: 6px 14px; font-weight: 600; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginOverlay">
+  <div style="background:#fff;border-radius:20px;padding:48px 40px;width:100%;max-width:400px;box-shadow:0 30px 80px rgba(0,0,0,0.4);">
+    <div class="text-center mb-4">
+      <div style="font-size:2rem;font-weight:900;">
+        <span style="color:#00BCD4;">Vend</span><span style="color:#FF6B00;">ly</span>
+      </div>
+      <p class="text-muted mb-0" style="font-size:0.85rem;">Panel de Administración</p>
+    </div>
+    <div class="mb-3">
+      <input id="loginEmail" type="email" class="form-control" placeholder="Email de administrador" style="border-radius:10px;padding:10px 14px;">
+    </div>
+    <div class="mb-3">
+      <input id="loginPassword" type="password" class="form-control" placeholder="Contraseña" style="border-radius:10px;padding:10px 14px;" onkeydown="if(event.key==='Enter') adminLogin()">
+    </div>
+    <p id="loginError" class="text-danger" style="font-size:0.82rem;min-height:18px;"></p>
+    <button onclick="adminLogin()" class="btn w-100 text-white fw-bold" style="background:linear-gradient(90deg,#00BCD4,#0097a7);border-radius:10px;padding:11px;border:none;">
+      Ingresar
+    </button>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div id="adminApp">
+
+  <!-- SIDEBAR -->
+  <aside class="ad-sidebar">
+    <div class="ad-logo">
+      <div class="ad-logo-text"><span>Vend</span><span>ly</span></div>
+      <div class="ad-logo-sub">PANEL DE ADMINISTRACIÓN</div>
+    </div>
+    <nav class="ad-nav">
+      <div class="ad-nav-item active" onclick="showSection('dashboard')">
+        <i class="bi bi-grid-1x2-fill"></i> Dashboard
+      </div>
+      <div class="ad-nav-item" onclick="showSection('clientes')">
+        <i class="bi bi-people-fill"></i> Clientes
+      </div>
+      <div class="ad-nav-item" onclick="showSection('pagos')">
+        <i class="bi bi-cash-stack"></i> Pagos
+      </div>
+      <div class="ad-nav-item" onclick="showSection('referidos')">
+        <i class="bi bi-gift-fill"></i> Referidos
+      </div>
+    </nav>
+    <div class="ad-sidebar-footer">
+      <div class="ad-user">
+        <img id="adAvatar" src="https://ui-avatars.com/api/?name=Admin&background=00BCD4&color=fff&size=80" alt="">
+        <div>
+          <div class="ad-user-name" id="adUserName">Admin</div>
+          <div class="ad-user-role">Super Administrador</div>
+        </div>
+      </div>
+      <button class="btn btn-sm mt-3 w-100" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);border:none;font-size:0.78rem;" onclick="adminLogout()">
+        <i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="ad-main">
+
+    <!-- TOPBAR -->
+    <div class="ad-topbar">
+      <h1 class="ad-page-title" id="adPageTitle">Dashboard</h1>
+      <div class="d-flex gap-2">
+        <button class="btn-ad-primary" onclick="showSection('clientes'); openCreateClientModal()">
+          <i class="bi bi-person-plus me-1"></i> Nuevo Cliente
+        </button>
+      </div>
+    </div>
+
+    <div class="ad-content">
+
+      <!-- DASHBOARD -->
+      <div id="section-dashboard" class="ad-section active">
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <div class="ad-kpi">
+              <div class="ad-kpi-icon" style="background:#E0F7FA;color:#00BCD4;"><i class="bi bi-people-fill"></i></div>
+              <div class="ad-kpi-value" id="kpiTotal">—</div>
+              <div class="ad-kpi-label">Clientes totales</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="ad-kpi">
+              <div class="ad-kpi-icon" style="background:#D1FAE5;color:#065F46;"><i class="bi bi-check-circle-fill"></i></div>
+              <div class="ad-kpi-value" id="kpiActivos">—</div>
+              <div class="ad-kpi-label">Clientes activos</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="ad-kpi">
+              <div class="ad-kpi-icon" style="background:#FEF3C7;color:#92400E;"><i class="bi bi-exclamation-triangle-fill"></i></div>
+              <div class="ad-kpi-value" id="kpiPendientes">—</div>
+              <div class="ad-kpi-label">Pagos pendientes</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="ad-kpi">
+              <div class="ad-kpi-icon" style="background:#EDE9FE;color:#5B21B6;"><i class="bi bi-cash-coin"></i></div>
+              <div class="ad-kpi-value" id="kpiIngresos">—</div>
+              <div class="ad-kpi-label">Ingresos del mes</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-8">
+            <div class="ad-card">
+              <div class="ad-card-header">
+                <span class="ad-card-title">Clientes recientes</span>
+                <a href="#" onclick="showSection('clientes')" style="font-size:0.8rem;color:#00BCD4;">Ver todos</a>
+              </div>
+              <div class="ad-card-body p-0">
+                <table class="table table-hover mb-0" style="font-size:0.83rem;">
+                  <thead class="table-light">
+                    <tr><th>Cliente</th><th>Estado</th><th>Vence</th><th>Plan</th></tr>
+                  </thead>
+                  <tbody id="dashRecentClients">
+                    <tr><td colspan="4" class="text-center text-muted py-3">Cargando...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="ad-card h-100">
+              <div class="ad-card-header">
+                <span class="ad-card-title">Resumen de pagos</span>
+              </div>
+              <div class="ad-card-body">
+                <div class="d-flex justify-content-between mb-3">
+                  <span class="text-muted" style="font-size:0.83rem;">Al día</span>
+                  <span class="fw-bold text-success" id="sumAlDia">—</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                  <span class="text-muted" style="font-size:0.83rem;">Pendientes</span>
+                  <span class="fw-bold text-warning" id="sumPendiente">—</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted" style="font-size:0.83rem;">Suspendidos</span>
+                  <span class="fw-bold text-danger" id="sumSuspendido">—</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between">
+                  <span class="fw-bold" style="font-size:0.85rem;">Total mes</span>
+                  <span class="fw-bold" style="color:#00BCD4;" id="sumTotal">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CLIENTES -->
+      <div id="section-clientes" class="ad-section">
+        <div class="ad-card">
+          <div class="ad-card-header">
+            <span class="ad-card-title">Todos los clientes</span>
+            <button class="btn-ad-primary" onclick="openCreateClientModal()">
+              <i class="bi bi-person-plus me-1"></i> Nuevo Cliente
+            </button>
+          </div>
+          <div class="ad-card-body">
+            <table id="clientesTable" class="table table-hover" style="width:100%;">
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Email</th>
+                  <th>Estado</th>
+                  <th>Vence</th>
+                  <th>Descuento</th>
+                  <th>Referidos</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="clientesTbody">
+                <tr><td colspan="7" class="text-center text-muted py-3">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGOS -->
+      <div id="section-pagos" class="ad-section">
+        <div class="ad-card">
+          <div class="ad-card-header">
+            <span class="ad-card-title">Historial de pagos</span>
+          </div>
+          <div class="ad-card-body">
+            <table id="pagosTable" class="table table-hover" style="width:100%;">
+              <thead>
+                <tr><th>Cliente</th><th>Monto</th><th>Mes</th><th>Fecha</th><th>Notas</th></tr>
+              </thead>
+              <tbody id="pagosTbody">
+                <tr><td colspan="5" class="text-center text-muted py-3">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- REFERIDOS -->
+      <div id="section-referidos" class="ad-section">
+        <div class="ad-card">
+          <div class="ad-card-header">
+            <span class="ad-card-title">Sistema de referidos</span>
+          </div>
+          <div class="ad-card-body">
+            <table id="referidosTable" class="table table-hover" style="width:100%;">
+              <thead>
+                <tr><th>Cliente</th><th>Código</th><th>Referidos</th><th>Descuento aplicado</th></tr>
+              </thead>
+              <tbody id="referidosTbody">
+                <tr><td colspan="4" class="text-center text-muted py-3">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /ad-content -->
+  </div><!-- /ad-main -->
+</div><!-- /adminApp -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/db.js"></script>
+<script>
+/* =============================================
+   VENDLY Admin Panel
+   ============================================= */
+
+const ADMIN_EMAIL  = 'corporativogestion2025@gmail.com';
+const PRICE        = 250000;
+let   adminUser    = null;
+let   clientesDT   = null;
+let   pagosDT      = null;
+let   referidosDT  = null;
+let   allClientes  = [];
+
+// ---- AUTH ----
+async function initAdminAuth() {
+  const { data: { session } } = await db.auth.getSession();
+  if (session && session.user.email === ADMIN_EMAIL) {
+    adminUser = session.user;
+    showAdminApp();
+  } else if (session) {
+    window.location.href = '/';
+  } else {
+    document.getElementById('loginOverlay').style.display = 'flex';
+  }
+}
+
+async function adminLogin() {
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errEl    = document.getElementById('loginError');
+  errEl.textContent = '';
+
+  const { data, error } = await db.auth.signInWithPassword({ email, password });
+  if (error) { errEl.textContent = 'Email o contraseña incorrectos.'; return; }
+  if (data.user.email !== ADMIN_EMAIL) {
+    await db.auth.signOut();
+    errEl.textContent = 'Esta cuenta no tiene acceso al panel de administración.';
+    return;
+  }
+  adminUser = data.user;
+  showAdminApp();
+}
+
+async function adminLogout() {
+  await db.auth.signOut();
+  window.location.reload();
+}
+
+function showAdminApp() {
+  document.getElementById('loginOverlay').style.display = 'none';
+  document.getElementById('adminApp').style.display = 'flex';
+  const name = adminUser.user_metadata?.name || 'Admin';
+  document.getElementById('adUserName').textContent = name;
+  document.getElementById('adAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=00BCD4&color=fff&size=80`;
+  loadDashboard();
+  loadClientes();
+  loadPagos();
+}
+
+// ---- NAVIGATION ----
+const sectionTitles = {
+  dashboard: 'Dashboard',
+  clientes:  'Clientes',
+  pagos:     'Pagos',
+  referidos: 'Referidos',
+};
+
+function showSection(id) {
+  document.querySelectorAll('.ad-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.ad-nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  document.querySelectorAll('.ad-nav-item').forEach(n => {
+    if (n.textContent.toLowerCase().includes(id === 'dashboard' ? 'dash' : id.substring(0,5))) n.classList.add('active');
+  });
+  document.getElementById('adPageTitle').textContent = sectionTitles[id] || id;
+  if (id === 'referidos') loadReferidos();
+}
+
+// ---- HELPERS ----
+function fmtGs(n) { return '₲ ' + Number(n).toLocaleString('es-PY'); }
+function fmtDate(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').toLocaleDateString('es-AR'); }
+function statusBadge(s) {
+  const map = { active: ['Activo','badge-active'], pending: ['Pendiente','badge-pending'], suspended: ['Suspendido','badge-suspended'] };
+  const [label, cls] = map[s] || ['—','bg-secondary text-white'];
+  return `<span class="badge ${cls}" style="font-size:0.75rem;padding:5px 10px;border-radius:20px;">${label}</span>`;
+}
+function genCode(name, email) {
+  const base = (name || email).replace(/[^a-zA-Z]/g,'').toUpperCase().substring(0,5);
+  const num  = Math.floor(1000 + Math.random() * 9000);
+  return 'VDL-' + base + num;
+}
+
+// ---- LOAD DATA ----
+async function loadDashboard() {
+  const token = (await db.auth.getSession()).data.session.access_token;
+  const res   = await fetch('/api/admin/users', { headers: { 'Authorization': 'Bearer ' + token } });
+  const data  = await res.json();
+  if (!data.ok) return;
+
+  const users    = data.users.filter(u => u.email !== ADMIN_EMAIL);
+  const { data: subs } = await db.from('suscripciones').select('*');
+  const subsMap  = {};
+  (subs || []).forEach(s => subsMap[s.user_id] = s);
+
+  const today    = new Date();
+  let activos = 0, pendientes = 0, suspendidos = 0;
+
+  const recent = users.slice(0, 5).map(u => {
+    const sub  = subsMap[u.id] || {};
+    const st   = sub.status || 'pending';
+    const vence = sub.paid_until ? fmtDate(sub.paid_until) : '—';
+    if (st === 'active')    activos++;
+    if (st === 'pending')   pendientes++;
+    if (st === 'suspended') suspendidos++;
+    const name = sub.name || u.user_metadata?.name || u.email.split('@')[0];
+    return `<tr>
+      <td><strong>${name}</strong></td>
+      <td>${statusBadge(st)}</td>
+      <td>${vence}</td>
+      <td>${fmtGs(sub.price || PRICE)}</td>
+    </tr>`;
+  }).join('');
+
+  // recount all
+  activos = 0; pendientes = 0; suspendidos = 0;
+  users.forEach(u => {
+    const st = (subsMap[u.id] || {}).status || 'pending';
+    if (st === 'active')    activos++;
+    if (st === 'pending')   pendientes++;
+    if (st === 'suspended') suspendidos++;
+  });
+
+  document.getElementById('kpiTotal').textContent     = users.length;
+  document.getElementById('kpiActivos').textContent   = activos;
+  document.getElementById('kpiPendientes').textContent = pendientes;
+  document.getElementById('kpiIngresos').textContent  = fmtGs(activos * PRICE);
+  document.getElementById('dashRecentClients').innerHTML = recent || '<tr><td colspan="4" class="text-center text-muted py-3">Sin clientes aún</td></tr>';
+  document.getElementById('sumAlDia').textContent     = activos;
+  document.getElementById('sumPendiente').textContent = pendientes;
+  document.getElementById('sumSuspendido').textContent = suspendidos;
+  document.getElementById('sumTotal').textContent     = fmtGs(activos * PRICE);
+}
+
+async function loadClientes() {
+  const token = (await db.auth.getSession()).data.session.access_token;
+  const res   = await fetch('/api/admin/users', { headers: { 'Authorization': 'Bearer ' + token } });
+  const data  = await res.json();
+  if (!data.ok) return;
+
+  const users = data.users.filter(u => u.email !== ADMIN_EMAIL);
+  const { data: subs } = await db.from('suscripciones').select('*');
+  const subsMap = {};
+  (subs || []).forEach(s => subsMap[s.user_id] = s);
+  allClientes = users.map(u => ({ ...u, sub: subsMap[u.id] || {} }));
+
+  const tbody = document.getElementById('clientesTbody');
+  tbody.innerHTML = allClientes.map(u => {
+    const sub   = u.sub;
+    const name  = sub.name || u.user_metadata?.name || u.email.split('@')[0];
+    const st    = sub.status || 'pending';
+    const refs  = allClientes.filter(c => c.sub.referred_by === sub.referral_code).length;
+    return `<tr>
+      <td><strong>${name}</strong></td>
+      <td><small class="text-muted">${u.email}</small></td>
+      <td>${statusBadge(st)}</td>
+      <td>${fmtDate(sub.paid_until)}</td>
+      <td>${sub.discount_percent ? sub.discount_percent + '%' : '—'}</td>
+      <td>${refs > 0 ? `<span class="badge bg-info text-white">${refs}</span>` : '—'}</td>
+      <td>
+        <div class="d-flex gap-1">
+          <button class="btn-ad-success" onclick="markPayment('${u.id}','${name}')"><i class="bi bi-cash me-1"></i>Pago</button>
+          <button class="btn btn-sm btn-outline-warning" onclick="toggleStatus('${u.id}','${st}')"><i class="bi bi-pause-circle"></i></button>
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteCliente('${u.id}','${u.email}')"><i class="bi bi-trash"></i></button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="7" class="text-center text-muted py-3">Sin clientes aún</td></tr>';
+
+  if (clientesDT) clientesDT.destroy();
+  clientesDT = new DataTable('#clientesTable', {
+    pageLength: 10,
+    columnDefs: [{ orderable: false, targets: [6] }],
+    language: { url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json' },
+  });
+}
+
+async function loadPagos() {
+  const { data: pagos } = await db.from('pagos').select('*').order('created_at', { ascending: false });
+  const { data: subs  } = await db.from('suscripciones').select('user_id, name, email');
+  const subsMap = {};
+  (subs || []).forEach(s => subsMap[s.user_id] = s);
+
+  const tbody = document.getElementById('pagosTbody');
+  tbody.innerHTML = (pagos || []).map(p => {
+    const sub  = subsMap[p.user_id] || {};
+    return `<tr>
+      <td><strong>${sub.name || '—'}</strong><br><small class="text-muted">${sub.email || ''}</small></td>
+      <td class="fw-bold text-success">${fmtGs(p.amount)}</td>
+      <td>${p.month || '—'}</td>
+      <td>${fmtDate(p.date)}</td>
+      <td>${p.notes || '—'}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5" class="text-center text-muted py-3">Sin pagos registrados</td></tr>';
+
+  if (pagosDT) pagosDT.destroy();
+  pagosDT = new DataTable('#pagosTable', {
+    pageLength: 10,
+    language: { url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json' },
+  });
+}
+
+async function loadReferidos() {
+  const { data: subs } = await db.from('suscripciones').select('*');
+  const tbody = document.getElementById('referidosTbody');
+  const subsArr = subs || [];
+
+  tbody.innerHTML = subsArr.map(s => {
+    const refs = subsArr.filter(r => r.referred_by === s.referral_code).length;
+    return `<tr>
+      <td><strong>${s.name || s.email}</strong></td>
+      <td><code style="background:#f0f0f0;padding:3px 8px;border-radius:6px;">${s.referral_code || '—'}</code></td>
+      <td>${refs > 0 ? `<span class="badge bg-success">${refs} referido${refs > 1 ? 's' : ''}</span>` : '—'}</td>
+      <td>${s.discount_percent ? s.discount_percent + '% descuento' : 'Sin descuento'}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="4" class="text-center text-muted py-3">Sin datos de referidos</td></tr>';
+
+  if (referidosDT) referidosDT.destroy();
+  referidosDT = new DataTable('#referidosTable', {
+    pageLength: 10,
+    language: { url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json' },
+  });
+}
+
+// ---- ACCIONES ----
+async function openCreateClientModal() {
+  const { value } = await Swal.fire({
+    title: 'Nuevo Cliente',
+    width: 500,
+    html: `
+      <div class="text-start">
+        <div class="mb-3"><label class="form-label fw-semibold" style="font-size:0.83rem;">Nombre *</label>
+          <input id="ac-name" class="form-control" placeholder="Nombre del cliente o negocio"></div>
+        <div class="mb-3"><label class="form-label fw-semibold" style="font-size:0.83rem;">Email *</label>
+          <input id="ac-email" class="form-control" type="email" placeholder="cliente@email.com"></div>
+        <div class="mb-3"><label class="form-label fw-semibold" style="font-size:0.83rem;">Contraseña temporal *</label>
+          <input id="ac-pass" class="form-control" type="password" placeholder="Mínimo 6 caracteres"></div>
+        <div class="mb-3"><label class="form-label fw-semibold" style="font-size:0.83rem;">Vence el</label>
+          <input id="ac-vence" class="form-control" type="date"></div>
+        <div class="mb-3"><label class="form-label fw-semibold" style="font-size:0.83rem;">Código de referido (si aplica)</label>
+          <input id="ac-refcode" class="form-control" placeholder="VDL-XXXXX"></div>
+      </div>`,
+    showCancelButton: true,
+    confirmButtonColor: '#28A745',
+    confirmButtonText: '<i class="bi bi-person-plus me-1"></i> Crear cliente',
+    cancelButtonText: 'Cancelar',
+    preConfirm: async () => {
+      const name    = document.getElementById('ac-name').value.trim();
+      const email   = document.getElementById('ac-email').value.trim();
+      const pass    = document.getElementById('ac-pass').value;
+      const vence   = document.getElementById('ac-vence').value;
+      const refcode = document.getElementById('ac-refcode').value.trim();
+      if (!name || !email || !pass) { Swal.showValidationMessage('Nombre, email y contraseña son obligatorios'); return false; }
+      if (pass.length < 6) { Swal.showValidationMessage('La contraseña debe tener al menos 6 caracteres'); return false; }
+
+      const token = (await db.auth.getSession()).data.session.access_token;
+      const res = await fetch('/api/admin/create-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ email, password: pass, name }),
+      });
+      const data = await res.json();
+      if (!data.ok) { Swal.showValidationMessage('Error: ' + data.error); return false; }
+
+      // Calcular descuento por referido
+      let discount = 0;
+      let referredBy = null;
+      if (refcode) {
+        const { data: referrer } = await db.from('suscripciones').select('*').eq('referral_code', refcode).single();
+        if (referrer) {
+          referredBy = refcode;
+          // Aplicar 10% de descuento al referente
+          const newDiscount = Math.min((referrer.discount_percent || 0) + 10, 50);
+          await db.from('suscripciones').update({ discount_percent: newDiscount }).eq('id', referrer.id);
+          discount = 10; // nuevo cliente también obtiene 10%
+        }
+      }
+
+      // Crear suscripción
+      const myCode = genCode(name, email);
+      await db.from('suscripciones').insert({
+        user_id: data.user.id, email, name,
+        status: 'active',
+        price: PRICE,
+        paid_until: vence || null,
+        referral_code: myCode,
+        referred_by: referredBy,
+        discount_percent: discount,
+      });
+      return { name, email, myCode };
+    },
+  });
+
+  if (value) {
+    await Swal.fire({
+      icon: 'success',
+      title: 'Cliente creado',
+      html: `<p><strong>${value.name}</strong> ya puede ingresar a Vendly.</p>
+             <p>Su código de referido es: <code style="background:#f0f0f0;padding:3px 10px;border-radius:6px;"><strong>${value.myCode}</strong></code></p>`,
+      confirmButtonColor: '#00BCD4',
+    });
+    loadDashboard();
+    loadClientes();
+  }
+}
+
+async function markPayment(userId, name) {
+  const today = new Date();
+  const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
+  const { value } = await Swal.fire({
+    title: 'Registrar pago',
+    html: `
+      <p class="text-muted">Cliente: <strong>${name}</strong></p>
+      <div class="text-start">
+        <div class="mb-3"><label class="form-label fw-semibold" style="font-size:0.83rem;">Monto</label>
+          <input id="pay-amount" class="form-control" type="number" value="${PRICE}"></div>
+        <div class="mb-3"><label class="form-label fw-semibold" style="font-size:0.83rem;">Mes pagado</label>
+          <input id="pay-month" class="form-control" value="${today.toLocaleDateString('es-AR',{month:'long',year:'numeric'})}"></div>
+        <div class="mb-3"><label class="form-label fw-semibold" style="font-size:0.83rem;">Nueva fecha de vencimiento</label>
+          <input id="pay-vence" class="form-control" type="date" value="${nextMonth.toISOString().split('T')[0]}"></div>
+        <div class="mb-3"><label class="form-label fw-semibold" style="font-size:0.83rem;">Notas</label>
+          <input id="pay-notes" class="form-control" placeholder="Opcional"></div>
+      </div>`,
+    showCancelButton: true,
+    confirmButtonColor: '#28A745',
+    confirmButtonText: '<i class="bi bi-check-lg me-1"></i> Confirmar pago',
+    cancelButtonText: 'Cancelar',
+    preConfirm: async () => {
+      const amount = parseFloat(document.getElementById('pay-amount').value) || PRICE;
+      const month  = document.getElementById('pay-month').value;
+      const vence  = document.getElementById('pay-vence').value;
+      const notes  = document.getElementById('pay-notes').value;
+      await db.from('pagos').insert({ user_id: userId, amount, month, date: today.toISOString().split('T')[0], notes });
+      await db.from('suscripciones').update({ status: 'active', paid_until: vence }).eq('user_id', userId);
+      return true;
+    },
+  });
+  if (value) {
+    Swal.fire({ icon: 'success', title: 'Pago registrado', timer: 1500, showConfirmButton: false });
+    loadDashboard(); loadClientes(); loadPagos();
+  }
+}
+
+async function toggleStatus(userId, currentStatus) {
+  const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
+  const label     = newStatus === 'suspended' ? 'suspender' : 'reactivar';
+  const r = await Swal.fire({
+    title: `¿${label.charAt(0).toUpperCase() + label.slice(1)} cliente?`,
+    icon: 'question', showCancelButton: true,
+    confirmButtonText: `Sí, ${label}`, cancelButtonText: 'Cancelar',
+    confirmButtonColor: newStatus === 'suspended' ? '#DC3545' : '#28A745',
+  });
+  if (r.isConfirmed) {
+    await db.from('suscripciones').update({ status: newStatus }).eq('user_id', userId);
+    loadDashboard(); loadClientes();
+  }
+}
+
+async function deleteCliente(userId, email) {
+  const r = await Swal.fire({
+    title: '¿Eliminar cliente?',
+    html: `Se eliminará el acceso de <strong>${email}</strong> y todos sus datos.`,
+    icon: 'warning', showCancelButton: true,
+    confirmButtonColor: '#DC3545', confirmButtonText: 'Sí, eliminar', cancelButtonText: 'Cancelar',
+  });
+  if (!r.isConfirmed) return;
+  const token = (await db.auth.getSession()).data.session.access_token;
+  await fetch('/api/admin/delete-user', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    body: JSON.stringify({ userId }),
+  });
+  await db.from('suscripciones').delete().eq('user_id', userId);
+  loadDashboard(); loadClientes();
+}
+
+// ---- INIT ----
+document.addEventListener('DOMContentLoaded', initAdminAuth);
+</script>
+</body>
+</html>
