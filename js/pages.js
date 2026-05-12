@@ -7,48 +7,12 @@
 // =============================================
 // DATA (cargado desde Supabase)
 // =============================================
-let PRODUCTS = [];
-
-const CLIENTS = [
-  { id: 1, code: 'CLI-001', name: 'García, Juan Carlos', phone: '011-4523-1234', email: 'jgarcia@mail.com', group: 'Mayorista', balance: 45000, status: 'activo' },
-  { id: 2, code: 'CLI-002', name: 'López, María Fernanda', phone: '011-3456-7890', email: 'mlopez@mail.com', group: 'Minorista', balance: 0, status: 'activo' },
-  { id: 3, code: 'CLI-003', name: 'Martínez, Pedro A.', phone: '011-2345-6789', email: 'pmartinez@mail.com', group: 'Mayorista', balance: -12000, status: 'activo' },
-  { id: 4, code: 'CLI-004', name: 'Fernández, Ana Laura', phone: '011-7890-1234', email: 'afernandez@mail.com', group: 'Minorista', balance: 0, status: 'inactivo' },
-  { id: 5, code: 'CLI-005', name: 'González, Luis M.', phone: '011-5678-9012', email: 'lgonzalez@mail.com', group: 'VIP', balance: 150000, status: 'activo' },
-  { id: 6, code: 'CLI-006', name: 'Rodríguez, Claudia', phone: '011-6789-0123', email: 'crodriguez@mail.com', group: 'Minorista', balance: 0, status: 'activo' },
-];
-
-const SALES = [
-  { id: 1001, date: '2026-05-01', client: 'García, Juan Carlos', total: 280000, payment: 'Contado', status: 'cobrada', items: 3 },
-  { id: 1002, date: '2026-05-01', client: 'López, María Fernanda', total: 55000, payment: 'Efectivo', status: 'cobrada', items: 2 },
-  { id: 1003, date: '2026-04-30', client: 'Martínez, Pedro A.', total: 920000, payment: 'Crédito', status: 'pendiente', items: 5 },
-  { id: 1004, date: '2026-04-30', client: 'González, Luis M.', total: 145000, payment: 'Tarjeta', status: 'cobrada', items: 1 },
-  { id: 1005, date: '2026-04-29', client: 'Fernández, Ana Laura', total: 380000, payment: 'Crédito', status: 'pendiente', items: 4 },
-  { id: 1006, date: '2026-04-28', client: 'Rodríguez, Claudia', total: 75000, payment: 'Efectivo', status: 'cobrada', items: 2 },
-  { id: 1007, date: '2026-04-27', client: 'García, Juan Carlos', total: 445000, payment: 'Contado', status: 'cobrada', items: 6 },
-];
-
-const PURCHASES = [
-  { id: 'OC-001', date: '2026-05-02', supplier: 'TechDistribuidor SA', total: 640000, payment: 'Crédito 30d', status: 'pendiente', items: 4 },
-  { id: 'OC-002', date: '2026-04-28', supplier: 'Moda Import SRL', total: 185000, payment: 'Contado', status: 'recibida', items: 8 },
-  { id: 'OC-003', date: '2026-04-25', supplier: 'Electro Global', total: 920000, payment: 'Crédito 60d', status: 'recibida', items: 3 },
-  { id: 'OC-004', date: '2026-04-20', supplier: 'Proveedor Nacional', total: 230000, payment: 'Contado', status: 'recibida', items: 12 },
-];
-
-const EXPENSES = [
-  { id: 'GAS-001', date: '2026-05-01', category: 'Alquiler', description: 'Alquiler local comercial', amount: 180000, payment: 'Transferencia' },
-  { id: 'GAS-002', date: '2026-05-01', category: 'Servicios', description: 'Factura de luz', amount: 24500, payment: 'Débito' },
-  { id: 'GAS-003', date: '2026-04-30', category: 'Sueldos', description: 'Sueldos empleados', amount: 350000, payment: 'Transferencia' },
-  { id: 'GAS-004', date: '2026-04-28', category: 'Marketing', description: 'Publicidad redes sociales', amount: 45000, payment: 'Tarjeta' },
-  { id: 'GAS-005', date: '2026-04-25', category: 'Limpieza', description: 'Productos de limpieza', amount: 12000, payment: 'Efectivo' },
-];
-
-const SUPPLIERS = [
-  { id: 1, code: 'PRV-001', name: 'TechDistribuidor SA', phone: '011-3333-4444', email: 'ventas@techd.com', cuit: '30-12345678-9', balance: -640000, status: 'activo' },
-  { id: 2, code: 'PRV-002', name: 'Moda Import SRL', phone: '011-5555-6666', email: 'info@modaimport.com', cuit: '30-98765432-1', balance: 0, status: 'activo' },
-  { id: 3, code: 'PRV-003', name: 'Electro Global', phone: '011-7777-8888', email: 'pedidos@electroglobal.com', cuit: '30-11223344-5', balance: 0, status: 'activo' },
-  { id: 4, code: 'PRV-004', name: 'Proveedor Nacional', phone: '011-9999-0000', email: 'compras@provnac.com', cuit: '30-44332211-6', balance: 0, status: 'inactivo' },
-];
+let PRODUCTS  = [];
+let CLIENTS   = [];
+let SALES     = [];
+let PURCHASES = [];
+let EXPENSES  = [];
+let SUPPLIERS = [];
 
 // =============================================
 // HELPER: Format currency
@@ -304,9 +268,22 @@ function initSalesPage() {
   renderSalesTable();
 }
 
-function renderSalesTable() {
+async function renderSalesTable() {
   const tbody = document.getElementById('salesTbody');
   if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Cargando ventas...</td></tr>';
+  if (salesDT) { salesDT.destroy(); salesDT = null; }
+
+  const { data, error } = await db.from('ventas').select('*').order('created_at', { ascending: false });
+  if (error) { tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-3">Error: ${error.message}</td></tr>`; return; }
+
+  SALES = (data || []).map(s => ({ ...s, client: s.client_name }));
+
+  if (SALES.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No hay ventas registradas aún.</td></tr>';
+    return;
+  }
 
   tbody.innerHTML = SALES.map(s => `
     <tr>
@@ -372,9 +349,22 @@ function initClientsPage() {
   renderClientsTable();
 }
 
-function renderClientsTable() {
+async function renderClientsTable() {
   const tbody = document.getElementById('clientsTbody');
   if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Cargando clientes...</td></tr>';
+  if (clientsDT) { clientsDT.destroy(); clientsDT = null; }
+
+  const { data, error } = await db.from('clientes').select('*').order('name');
+  if (error) { tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger py-3">Error: ${error.message}</td></tr>`; return; }
+
+  CLIENTS = (data || []).map(c => ({ ...c, group: c.grp }));
+
+  if (CLIENTS.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4">No hay clientes registrados aún.</td></tr>';
+    return;
+  }
 
   tbody.innerHTML = CLIENTS.map(c => `
     <tr>
@@ -462,14 +452,15 @@ function openCreateClientModal() {
     cancelButtonColor: '#6c757d',
     confirmButtonText: '<i class="bi bi-plus-lg me-1"></i> Crear',
     cancelButtonText: 'Cancelar',
-    preConfirm: () => {
+    preConfirm: async () => {
       const name = document.getElementById('cc-name').value.trim();
       if (!name) { Swal.showValidationMessage('El nombre es obligatorio'); return false; }
       const phone = document.getElementById('cc-phone').value.trim();
       const email = document.getElementById('cc-email').value.trim();
-      const group = document.getElementById('cc-group').value;
-      const newId = CLIENTS.length + 1;
-      CLIENTS.push({ id: newId, code: 'CLI-' + String(newId).padStart(3, '0'), name, phone, email, group, balance: 0, status: 'activo' });
+      const grp   = document.getElementById('cc-group').value;
+      const code  = 'CLI-' + Date.now().toString().slice(-6);
+      const { error } = await db.from('clientes').insert({ code, name, phone, email, grp, balance: 0, status: 'activo' });
+      if (error) { Swal.showValidationMessage('Error al guardar: ' + error.message); return false; }
       return true;
     },
   }).then(r => {
@@ -489,9 +480,22 @@ function initPurchasesPage() {
   renderPurchasesTable();
 }
 
-function renderPurchasesTable() {
+async function renderPurchasesTable() {
   const tbody = document.getElementById('purchasesTbody');
   if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Cargando compras...</td></tr>';
+  if (purchasesDT) { purchasesDT.destroy(); purchasesDT = null; }
+
+  const { data, error } = await db.from('compras').select('*').order('created_at', { ascending: false });
+  if (error) { tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-3">Error: ${error.message}</td></tr>`; return; }
+
+  PURCHASES = (data || []).map(p => ({ ...p, supplier: p.supplier_name }));
+
+  if (PURCHASES.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No hay compras registradas aún.</td></tr>';
+    return;
+  }
 
   tbody.innerHTML = PURCHASES.map(p => `
     <tr>
@@ -541,9 +545,22 @@ function initExpensesPage() {
   renderExpensesTable();
 }
 
-function renderExpensesTable() {
+async function renderExpensesTable() {
   const tbody = document.getElementById('expensesTbody');
   if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Cargando gastos...</td></tr>';
+  if (expensesDT) { expensesDT.destroy(); expensesDT = null; }
+
+  const { data, error } = await db.from('gastos').select('*').order('created_at', { ascending: false });
+  if (error) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-3">Error: ${error.message}</td></tr>`; return; }
+
+  EXPENSES = data || [];
+
+  if (EXPENSES.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No hay gastos registrados aún.</td></tr>';
+    return;
+  }
 
   tbody.innerHTML = EXPENSES.map(e => `
     <tr>
@@ -581,9 +598,22 @@ function initSuppliersPage() {
   renderSuppliersTable();
 }
 
-function renderSuppliersTable() {
+async function renderSuppliersTable() {
   const tbody = document.getElementById('suppliersTbody');
   if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Cargando proveedores...</td></tr>';
+  if (suppliersDT) { suppliersDT.destroy(); suppliersDT = null; }
+
+  const { data, error } = await db.from('proveedores').select('*').order('name');
+  if (error) { tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-3">Error: ${error.message}</td></tr>`; return; }
+
+  SUPPLIERS = data || [];
+
+  if (SUPPLIERS.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No hay proveedores registrados aún.</td></tr>';
+    return;
+  }
 
   tbody.innerHTML = SUPPLIERS.map(s => `
     <tr>

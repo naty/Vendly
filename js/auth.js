@@ -62,8 +62,7 @@ function onAuthReady() {
 }
 
 function showLoginPage() {
-  document.getElementById('loginOverlay').style.display = 'flex';
-  document.getElementById('appWrapper').style.display = 'none';
+  window.location.href = '/login.html';
 }
 
 async function vendlyLogin() {

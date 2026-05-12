@@ -205,20 +205,18 @@ function openCreateSupplierModal() {
     showCancelButton: true,
     confirmButtonColor: '#28A745', cancelButtonColor: '#6c757d',
     confirmButtonText: '<i class="bi bi-plus-lg me-1"></i> Crear', cancelButtonText: 'Cancelar',
-    preConfirm: () => {
+    preConfirm: async () => {
       const name = document.getElementById('cs-name').value.trim();
       if (!name) { Swal.showValidationMessage('El nombre es obligatorio'); return false; }
-      const newId = SUPPLIERS.length + 1;
-      SUPPLIERS.push({
-        id: newId,
-        code: 'PRV-' + String(newId).padStart(3, '0'),
-        name,
+      const code = 'PRV-' + Date.now().toString().slice(-6);
+      const { error } = await db.from('proveedores').insert({
+        code, name,
         phone: document.getElementById('cs-phone').value.trim(),
         email: document.getElementById('cs-email').value.trim(),
-        cuit: document.getElementById('cs-cuit').value.trim() || '—',
-        balance: 0,
-        status: 'activo',
+        cuit:  document.getElementById('cs-cuit').value.trim() || '—',
+        balance: 0, status: 'activo',
       });
+      if (error) { Swal.showValidationMessage('Error: ' + error.message); return false; }
       return true;
     },
   }).then(r => {
@@ -277,20 +275,21 @@ function openCreateExpenseModal() {
     showCancelButton: true,
     confirmButtonColor: '#28A745', cancelButtonColor: '#6c757d',
     confirmButtonText: '<i class="bi bi-check-lg me-1"></i> Registrar', cancelButtonText: 'Cancelar',
-    preConfirm: () => {
+    preConfirm: async () => {
       const desc   = document.getElementById('ce-desc').value.trim();
       const amount = parseFloat(document.getElementById('ce-amount').value) || 0;
       if (!desc)   { Swal.showValidationMessage('La descripción es obligatoria'); return false; }
       if (!amount) { Swal.showValidationMessage('Ingrese un importe válido'); return false; }
-      const newId = 'GAS-' + String(EXPENSES.length + 1).padStart(3, '0');
-      EXPENSES.unshift({
-        id: newId,
-        date: document.getElementById('ce-date').value,
-        category: document.getElementById('ce-cat').value,
+      const code = 'GAS-' + Date.now().toString().slice(-6);
+      const { error } = await db.from('gastos').insert({
+        code,
+        date:        document.getElementById('ce-date').value,
+        category:    document.getElementById('ce-cat').value,
         description: desc,
         amount,
-        payment: document.getElementById('ce-payment').value,
+        payment:     document.getElementById('ce-payment').value,
       });
+      if (error) { Swal.showValidationMessage('Error: ' + error.message); return false; }
       return true;
     },
   }).then(r => {
@@ -1023,13 +1022,19 @@ function editClient(id) {
     showCancelButton: true,
     confirmButtonColor: '#28A745', cancelButtonColor: '#6c757d',
     confirmButtonText: 'Guardar', cancelButtonText: 'Cancelar',
-    preConfirm: () => {
+    preConfirm: async () => {
       const name = document.getElementById('ec-name').value.trim();
       if (!name) { Swal.showValidationMessage('El nombre es obligatorio'); return false; }
-      c.name  = name;
-      c.phone = document.getElementById('ec-phone').value.trim();
-      c.email = document.getElementById('ec-email').value.trim();
-      c.group = document.getElementById('ec-group').value;
+      const grp  = document.getElementById('ec-group').value;
+      const { error } = await db.from('clientes').update({
+        name,
+        phone: document.getElementById('ec-phone').value.trim(),
+        email: document.getElementById('ec-email').value.trim(),
+        grp,
+      }).eq('id', c.id);
+      if (error) { Swal.showValidationMessage('Error: ' + error.message); return false; }
+      c.name = name; c.phone = document.getElementById('ec-phone').value.trim();
+      c.email = document.getElementById('ec-email').value.trim(); c.group = grp;
       return true;
     },
   }).then(r => { if (r.isConfirmed) { showToast('Cliente actualizado.'); renderClientsTable(); } });
@@ -1043,10 +1048,10 @@ function deleteClient(id) {
     icon: 'warning',
     showCancelButton: true, confirmButtonColor: '#DC3545', cancelButtonColor: '#6c757d',
     confirmButtonText: 'Eliminar', cancelButtonText: 'Cancelar',
-  }).then(r => {
+  }).then(async r => {
     if (r.isConfirmed) {
-      const idx = CLIENTS.findIndex(x => x.id === id);
-      if (idx > -1) CLIENTS.splice(idx, 1);
+      const { error } = await db.from('clientes').delete().eq('id', id);
+      if (error) { showToast('Error al eliminar: ' + error.message, 'danger'); return; }
       renderClientsTable();
       showToast('Cliente eliminado.');
     }
@@ -1085,10 +1090,9 @@ function deletePurchase(id) {
     title: '¿Anular compra?', icon: 'warning',
     showCancelButton: true, confirmButtonColor: '#DC3545', cancelButtonColor: '#6c757d',
     confirmButtonText: 'Anular', cancelButtonText: 'Cancelar',
-  }).then(r => {
+  }).then(async r => {
     if (r.isConfirmed) {
-      const p = PURCHASES.find(x => x.id === id);
-      if (p) p.status = 'anulada';
+      await db.from('compras').update({ status: 'anulada' }).eq('id', id);
       renderPurchasesTable();
       showToast('Compra anulada.');
     }
@@ -1125,10 +1129,13 @@ function editExpense(id) {
     showCancelButton: true,
     confirmButtonColor: '#28A745', cancelButtonColor: '#6c757d',
     confirmButtonText: 'Guardar', cancelButtonText: 'Cancelar',
-    preConfirm: () => {
-      e.description = document.getElementById('ee-desc').value.trim() || e.description;
-      e.amount      = parseFloat(document.getElementById('ee-amount').value) || e.amount;
-      e.category    = document.getElementById('ee-cat').value;
+    preConfirm: async () => {
+      const description = document.getElementById('ee-desc').value.trim() || e.description;
+      const amount      = parseFloat(document.getElementById('ee-amount').value) || e.amount;
+      const category    = document.getElementById('ee-cat').value;
+      const { error } = await db.from('gastos').update({ description, amount, category }).eq('id', e.id);
+      if (error) { Swal.showValidationMessage('Error: ' + error.message); return false; }
+      e.description = description; e.amount = amount; e.category = category;
       return true;
     },
   }).then(r => { if (r.isConfirmed) { showToast('Gasto actualizado.'); renderExpensesTable(); } });
@@ -1139,10 +1146,9 @@ function deleteExpense(id) {
     title: '¿Eliminar gasto?', icon: 'warning',
     showCancelButton: true, confirmButtonColor: '#DC3545', cancelButtonColor: '#6c757d',
     confirmButtonText: 'Eliminar', cancelButtonText: 'Cancelar',
-  }).then(r => {
+  }).then(async r => {
     if (r.isConfirmed) {
-      const idx = EXPENSES.findIndex(x => x.id === id);
-      if (idx > -1) EXPENSES.splice(idx, 1);
+      await db.from('gastos').delete().eq('id', id);
       renderExpensesTable();
       showToast('Gasto eliminado.');
     }
@@ -1195,11 +1201,14 @@ function editSupplier(id) {
     showCancelButton: true,
     confirmButtonColor: '#28A745', cancelButtonColor: '#6c757d',
     confirmButtonText: 'Guardar', cancelButtonText: 'Cancelar',
-    preConfirm: () => {
-      s.name  = document.getElementById('es-name').value.trim() || s.name;
-      s.cuit  = document.getElementById('es-cuit').value.trim();
-      s.phone = document.getElementById('es-phone').value.trim();
-      s.email = document.getElementById('es-email').value.trim();
+    preConfirm: async () => {
+      const name  = document.getElementById('es-name').value.trim() || s.name;
+      const cuit  = document.getElementById('es-cuit').value.trim();
+      const phone = document.getElementById('es-phone').value.trim();
+      const email = document.getElementById('es-email').value.trim();
+      const { error } = await db.from('proveedores').update({ name, cuit, phone, email }).eq('id', s.id);
+      if (error) { Swal.showValidationMessage('Error: ' + error.message); return false; }
+      s.name = name; s.cuit = cuit; s.phone = phone; s.email = email;
       return true;
     },
   }).then(r => { if (r.isConfirmed) { showToast('Proveedor actualizado.'); renderSuppliersTable(); } });
@@ -1213,10 +1222,9 @@ function deleteSupplier(id) {
     icon: 'warning',
     showCancelButton: true, confirmButtonColor: '#DC3545', cancelButtonColor: '#6c757d',
     confirmButtonText: 'Eliminar', cancelButtonText: 'Cancelar',
-  }).then(r => {
+  }).then(async r => {
     if (r.isConfirmed) {
-      const idx = SUPPLIERS.findIndex(x => x.id === id);
-      if (idx > -1) SUPPLIERS.splice(idx, 1);
+      await db.from('proveedores').delete().eq('id', id);
       renderSuppliersTable();
       showToast('Proveedor eliminado.');
     }
