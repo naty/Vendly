@@ -142,15 +142,11 @@
       </li>
 
       <!-- Referidos -->
-      <li class="nav-item" data-label="Referidos">
-        <a class="nav-item-link" href="#" data-bs-toggle="collapse" data-bs-target="#sub-referidos" aria-expanded="false">
+      <li class="nav-item">
+        <a class="nav-item-link" href="#" data-page="referidos" data-label="Referidos">
           <i class="bi bi-gift nav-icon"></i>
           <span class="nav-label">Referidos</span>
-          <i class="bi bi-chevron-down submenu-arrow"></i>
         </a>
-        <ul class="sidebar-submenu collapse" id="sub-referidos">
-          <li><a href="#">Referí y ganá</a></li>
-        </ul>
       </li>
 
       <li><div class="sidebar-divider"></div></li>
@@ -2153,6 +2149,73 @@
         </table>
       </div>
     </div><!-- /page-admin -->
+
+    <!-- REFERIDOS -->
+    <div id="page-referidos" class="page">
+      <div class="vcard mb-3">
+        <h5 class="mb-1 fw-bold" style="color:#1E2A38;"><i class="bi bi-gift me-2" style="color:#FF6B00;"></i>Programa de Referidos</h5>
+        <p class="text-muted mb-0" style="font-size:0.9rem;">Compartí tu código y ganás un descuento en tu suscripción mensual por cada cliente que se sume.</p>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-4">
+          <div class="vcard text-center py-4">
+            <div class="mb-2" style="font-size:0.8rem;color:#6c757d;text-transform:uppercase;letter-spacing:1px;">Tu código de referido</div>
+            <div id="refCode" class="fw-bold mb-3" style="font-size:1.8rem;color:#00BCD4;letter-spacing:3px;">—</div>
+            <button class="btn btn-primary-custom btn-sm" onclick="copyRefCode()">
+              <i class="bi bi-clipboard me-1"></i> Copiar código
+            </button>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="vcard text-center py-4">
+            <div class="mb-2" style="font-size:0.8rem;color:#6c757d;text-transform:uppercase;letter-spacing:1px;">Tu descuento actual</div>
+            <div id="refDiscount" class="fw-bold" style="font-size:2.5rem;color:#28A745;">0%</div>
+            <div class="text-muted" style="font-size:0.8rem;">sobre tu cuota mensual</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="vcard text-center py-4">
+            <div class="mb-2" style="font-size:0.8rem;color:#6c757d;text-transform:uppercase;letter-spacing:1px;">Clientes referidos</div>
+            <div id="refCount" class="fw-bold" style="font-size:2.5rem;color:#FF6B00;">0</div>
+            <div class="text-muted" style="font-size:0.8rem;">usuarios que usaron tu código</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="vcard">
+        <h6 class="fw-bold mb-3" style="color:#1E2A38;">¿Cómo funciona?</h6>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="d-flex align-items-start gap-3">
+              <div class="stat-icon orange d-flex align-items-center justify-content-center flex-shrink-0" style="width:40px;height:40px;border-radius:10px;font-size:1.1rem;"><i class="bi bi-share"></i></div>
+              <div>
+                <div class="fw-semibold">1. Compartí tu código</div>
+                <div class="text-muted" style="font-size:0.83rem;">Enviá tu código único a cualquier negocio que quiera usar Vendly.</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="d-flex align-items-start gap-3">
+              <div class="stat-icon d-flex align-items-center justify-content-center flex-shrink-0" style="width:40px;height:40px;border-radius:10px;font-size:1.1rem;"><i class="bi bi-person-check"></i></div>
+              <div>
+                <div class="fw-semibold">2. Ellos se registran</div>
+                <div class="text-muted" style="font-size:0.83rem;">Cuando el nuevo cliente se da de alta, ingresa tu código.</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="d-flex align-items-start gap-3">
+              <div class="stat-icon green d-flex align-items-center justify-content-center flex-shrink-0" style="width:40px;height:40px;border-radius:10px;font-size:1.1rem;"><i class="bi bi-percent"></i></div>
+              <div>
+                <div class="fw-semibold">3. Obtenés 10% de descuento</div>
+                <div class="text-muted" style="font-size:0.83rem;">Por cada referido activo sumás 10% de descuento en tu mensualidad (máximo 50%).</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /page-referidos -->
 
   </div><!-- /main-content -->
 

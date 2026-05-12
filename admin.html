@@ -404,7 +404,6 @@ function showAdminApp() {
   document.getElementById('adAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=00BCD4&color=fff&size=80`;
   loadDashboard();
   loadClientes();
-  loadPagos();
 }
 
 // ---- NAVIGATION ----
@@ -424,6 +423,7 @@ function showSection(id) {
   });
   document.getElementById('adPageTitle').textContent = sectionTitles[id] || id;
   if (id === 'referidos') loadReferidos();
+  if (id === 'pagos')     loadPagos();
 }
 
 // ---- HELPERS ----
@@ -696,7 +696,8 @@ async function markPayment(userId, name) {
   });
   if (value) {
     Swal.fire({ icon: 'success', title: 'Pago registrado', timer: 1500, showConfirmButton: false });
-    loadDashboard(); loadClientes(); loadPagos();
+    loadDashboard(); loadClientes();
+    if (document.getElementById('section-pagos').classList.contains('active')) loadPagos();
   }
 }
 

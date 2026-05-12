@@ -106,6 +106,7 @@ function navigateTo(pageId, label) {
     'commissions':       initCommissionsPage,
     'debit-notes':       initDebitNotesPage,
     'admin':             initAdminPage,
+    'referidos':         initReferidosClientPage,
   };
   if (pageInits[pageId]) pageInits[pageId]();
 

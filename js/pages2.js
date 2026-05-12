@@ -1343,3 +1343,24 @@ function initDebitNotesPage() {
     dom: "<'row mb-2'<'col-sm-6'l><'col-sm-6 d-flex justify-content-end'f>><'row'<'col-12'tr>><'row mt-2'<'col-sm-5'i><'col-sm-7'p>>",
   });
 }
+
+// ---- REFERIDOS (vista cliente) ----
+async function initReferidosClientPage() {
+  const { data: sub } = await db.from('suscripciones').select('referral_code, discount_percent, referred_by').eq('user_id', currentUser.id).maybeSingle();
+  if (!sub) return;
+
+  const code = sub.referral_code || '—';
+  document.getElementById('refCode').textContent = code;
+  document.getElementById('refDiscount').textContent = (sub.discount_percent || 0) + '%';
+
+  const { count } = await db.from('suscripciones').select('id', { count: 'exact', head: true }).eq('referred_by', code);
+  document.getElementById('refCount').textContent = count || 0;
+}
+
+function copyRefCode() {
+  const code = document.getElementById('refCode').textContent;
+  if (code === '—') return;
+  navigator.clipboard.writeText(code).then(() => {
+    Swal.fire({ icon: 'success', title: '¡Copiado!', text: code, timer: 1500, showConfirmButton: false });
+  });
+}
