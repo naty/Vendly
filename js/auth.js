@@ -20,7 +20,7 @@ async function initAuth() {
       onAuthReady();
     } else if (event === 'SIGNED_OUT') {
       currentUser = null;
-      location.reload();
+      window.location.href = '/login.html';
     }
   });
 }

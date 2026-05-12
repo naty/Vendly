@@ -391,7 +391,7 @@ async function adminLogin() {
 
 async function adminLogout() {
   await db.auth.signOut();
-  window.location.reload();
+  window.location.href = '/login.html';
 }
 
 function showAdminApp() {
