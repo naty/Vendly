@@ -357,8 +357,6 @@ const ADMIN_EMAIL  = 'corporativogestion2025@gmail.com';
 const PRICE        = 250000;
 let   adminUser    = null;
 let   clientesDT   = null;
-let   pagosDT      = null;
-let   referidosDT  = null;
 let   allClientes  = [];
 
 // ---- AUTH ----
@@ -543,7 +541,7 @@ async function loadPagos() {
 
   const tbody = document.getElementById('pagosTbody');
   tbody.innerHTML = (pagos || []).map(p => {
-    const sub  = subsMap[p.user_id] || {};
+    const sub = subsMap[p.user_id] || {};
     return `<tr>
       <td><strong>${sub.name || '—'}</strong><br><small class="text-muted">${sub.email || ''}</small></td>
       <td class="fw-bold text-success">${fmtGs(p.amount)}</td>
@@ -552,13 +550,6 @@ async function loadPagos() {
       <td>${p.notes || '—'}</td>
     </tr>`;
   }).join('') || '<tr><td colspan="5" class="text-center text-muted py-3">Sin pagos registrados</td></tr>';
-
-  if ($.fn.DataTable.isDataTable('#pagosTable')) $('#pagosTable').DataTable().destroy();
-  pagosDT = new DataTable('#pagosTable', {
-    destroy: true,
-    pageLength: 10,
-    language: { url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json' },
-  });
 }
 
 async function loadReferidos() {
@@ -576,12 +567,6 @@ async function loadReferidos() {
     </tr>`;
   }).join('') || '<tr><td colspan="4" class="text-center text-muted py-3">Sin datos de referidos</td></tr>';
 
-  if ($.fn.DataTable.isDataTable('#referidosTable')) $('#referidosTable').DataTable().destroy();
-  referidosDT = new DataTable('#referidosTable', {
-    destroy: true,
-    pageLength: 10,
-    language: { url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json' },
-  });
 }
 
 // ---- ACCIONES ----
@@ -692,8 +677,10 @@ async function markPayment(userId, name) {
       const month  = document.getElementById('pay-month').value;
       const vence  = document.getElementById('pay-vence').value;
       const notes  = document.getElementById('pay-notes').value;
-      await db.from('pagos').insert({ user_id: userId, amount, month, date: today.toISOString().split('T')[0], notes });
-      await db.from('suscripciones').update({ status: 'active', paid_until: vence }).eq('user_id', userId);
+      const { error: e1 } = await db.from('pagos').insert({ user_id: userId, amount, month, date: today.toISOString().split('T')[0], notes });
+      if (e1) { Swal.showValidationMessage('Error al guardar pago: ' + e1.message); return false; }
+      const { error: e2 } = await db.from('suscripciones').update({ status: 'active', paid_until: vence }).eq('user_id', userId);
+      if (e2) { Swal.showValidationMessage('Error al actualizar suscripción: ' + e2.message); return false; }
       return true;
     },
   });
