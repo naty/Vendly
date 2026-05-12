@@ -526,8 +526,9 @@ async function loadClientes() {
     </tr>`;
   }).join('') || '<tr><td colspan="7" class="text-center text-muted py-3">Sin clientes aún</td></tr>';
 
-  if (clientesDT) clientesDT.destroy();
+  if ($.fn.DataTable.isDataTable('#clientesTable')) $('#clientesTable').DataTable().destroy();
   clientesDT = new DataTable('#clientesTable', {
+    destroy: true,
     pageLength: 10,
     columnDefs: [{ orderable: false, targets: [6] }],
     language: { url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json' },
@@ -552,8 +553,9 @@ async function loadPagos() {
     </tr>`;
   }).join('') || '<tr><td colspan="5" class="text-center text-muted py-3">Sin pagos registrados</td></tr>';
 
-  if (pagosDT) pagosDT.destroy();
+  if ($.fn.DataTable.isDataTable('#pagosTable')) $('#pagosTable').DataTable().destroy();
   pagosDT = new DataTable('#pagosTable', {
+    destroy: true,
     pageLength: 10,
     language: { url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json' },
   });
@@ -574,8 +576,9 @@ async function loadReferidos() {
     </tr>`;
   }).join('') || '<tr><td colspan="4" class="text-center text-muted py-3">Sin datos de referidos</td></tr>';
 
-  if (referidosDT) referidosDT.destroy();
+  if ($.fn.DataTable.isDataTable('#referidosTable')) $('#referidosTable').DataTable().destroy();
   referidosDT = new DataTable('#referidosTable', {
+    destroy: true,
     pageLength: 10,
     language: { url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json' },
   });
