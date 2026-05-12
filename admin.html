@@ -80,7 +80,7 @@
     .ad-logo-sub { color: rgba(255,255,255,0.38); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 5px; }
 
     .ad-nav { flex: 1; padding: 10px 0; overflow-y: auto; }
-    .ad-nav-section { padding: 14px 20px 6px; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.25); }
+    .ad-nav-section { padding: 6px 20px 6px; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.4); margin-top: 20px; }
     .ad-nav-item {
       display: flex; align-items: center; gap: 12px;
       padding: 11px 20px; color: rgba(255,255,255,0.58);
@@ -406,7 +406,7 @@
         <div class="row g-3 mb-4">
           <div class="col-6 col-xl-3">
             <div class="kpi-card">
-              <div class="kpi-icon" style="background:rgba(0,188,212,0.12);color:#00BCD4;">
+              <div class="kpi-icon" style="background:#00BCD4;color:#fff;">
                 <i class="bi bi-people-fill"></i>
               </div>
               <div class="kpi-value" id="kpiTotal">—</div>
@@ -416,7 +416,7 @@
           </div>
           <div class="col-6 col-xl-3">
             <div class="kpi-card">
-              <div class="kpi-icon" style="background:rgba(40,167,69,0.12);color:#28A745;">
+              <div class="kpi-icon" style="background:#28A745;color:#fff;">
                 <i class="bi bi-check-circle-fill"></i>
               </div>
               <div class="kpi-value" id="kpiActivos">—</div>
@@ -426,7 +426,7 @@
           </div>
           <div class="col-6 col-xl-3">
             <div class="kpi-card">
-              <div class="kpi-icon" style="background:rgba(255,107,0,0.12);color:#FF6B00;">
+              <div class="kpi-icon" style="background:#FF6B00;color:#fff;">
                 <i class="bi bi-cash-stack"></i>
               </div>
               <div class="kpi-value" id="kpiIngresos" style="font-size:1.2rem;">—</div>
@@ -436,7 +436,7 @@
           </div>
           <div class="col-6 col-xl-3">
             <div class="kpi-card">
-              <div class="kpi-icon" style="background:rgba(220,53,69,0.12);color:#DC3545;">
+              <div class="kpi-icon" style="background:#DC3545;color:#fff;">
                 <i class="bi bi-exclamation-triangle-fill"></i>
               </div>
               <div class="kpi-value" id="kpiPendientes">—</div>
@@ -1006,40 +1006,37 @@ function showSection(id) {
 // DASHBOARD
 // ============================================================
 async function loadDashboard() {
-  // Try Supabase first
   const { data: subs } = await db.from('suscripciones').select('*').order('created_at', { ascending: false });
-  const clients = (subs && subs.length > 0) ? subs : MOCK_CLIENTES;
+  const clients = subs || [];
 
-  const today = new Date();
   let activos = 0, pendientes = 0, vencidos = 0, ingresos = 0;
-
   clients.forEach(c => {
     if (c.status === 'active')    { activos++; ingresos += PLANS[c.plan]?.price || 250000; }
     if (c.status === 'pending')   { pendientes++; }
     if (c.status === 'suspended') { vencidos++; }
   });
 
-  document.getElementById('kpiTotal').textContent     = clients.length;
-  document.getElementById('kpiActivos').textContent   = activos;
-  document.getElementById('kpiIngresos').textContent  = fmtGs(ingresos);
-  document.getElementById('kpiPendientes').textContent= pendientes;
-  document.getElementById('sumAlDia').textContent     = activos;
-  document.getElementById('sumPendiente').textContent = pendientes;
-  document.getElementById('sumVencidos').textContent  = vencidos;
-  document.getElementById('sumTotalMes').textContent  = fmtGs(ingresos);
+  document.getElementById('kpiTotal').textContent      = clients.length;
+  document.getElementById('kpiActivos').textContent    = activos;
+  document.getElementById('kpiIngresos').textContent   = fmtGs(ingresos);
+  document.getElementById('kpiPendientes').textContent = pendientes;
+  document.getElementById('sumAlDia').textContent      = activos;
+  document.getElementById('sumPendiente').textContent  = pendientes;
+  document.getElementById('sumVencidos').textContent   = vencidos;
+  document.getElementById('sumTotalMes').textContent   = fmtGs(ingresos);
 
-  // Recent clients table (last 5)
   const recent = clients.slice(0, 5);
-  document.getElementById('dashRecentTbody').innerHTML = recent.map(c => `
-    <tr>
-      <td><strong style="font-size:0.84rem;">${c.name || c.email}</strong></td>
-      <td><small class="text-muted">${c.email}</small></td>
-      <td>${planBadge(c.plan || 'basic')}</td>
-      <td>${statusBadge(c.status || 'pending')}</td>
-      <td style="font-size:0.78rem;color:#6c757d;">${fmtDate(c.created_at?.split('T')[0])}</td>
-      <td><button class="btn-outline-cian" style="font-size:0.74rem;padding:3px 10px;" onclick="showSection('clientes')">Ver</button></td>
-    </tr>
-  `).join('') || '<tr><td colspan="6" class="text-center text-muted py-3">Sin clientes aún</td></tr>';
+  document.getElementById('dashRecentTbody').innerHTML = recent.length > 0
+    ? recent.map(c => `
+        <tr>
+          <td><strong style="font-size:0.84rem;">${c.name || c.email}</strong></td>
+          <td><small class="text-muted">${c.email}</small></td>
+          <td>${planBadge(c.plan || 'basic')}</td>
+          <td>${statusBadge(c.status || 'pending')}</td>
+          <td style="font-size:0.78rem;color:#6c757d;">${fmtDate(c.created_at?.split('T')[0])}</td>
+          <td><button class="btn-outline-cian" style="font-size:0.74rem;padding:3px 10px;" onclick="showSection('clientes')">Ver</button></td>
+        </tr>`).join('')
+    : '<tr><td colspan="6" class="text-center text-muted py-4">No hay clientes aún</td></tr>';
 
   initRevenueChart(clients);
 }
@@ -1068,7 +1065,7 @@ function initRevenueChart(clients) {
       datasets: [{
         label: 'Ingresos',
         data,
-        backgroundColor: 'rgba(0,188,212,0.75)',
+        backgroundColor: ['#00BCD4','#0097A7','#00BCD4','#0097A7','#00BCD4','#0097A7'],
         borderRadius: 6,
         borderSkipped: false,
       }],
@@ -1274,7 +1271,7 @@ async function openPaymentModal(userId, name, plan) {
       const notes  = document.getElementById('pm-notes').value;
 
       const { error: e1 } = await db.from('pagos').insert({
-        user_id: userId, amount, month, method,
+        user_id: userId, amount, month, metodo_pago: method,
         date: today.toISOString().split('T')[0], notes, status: 'pagado',
       });
       if (e1) { Swal.showValidationMessage('Error al registrar pago: ' + e1.message); return false; }
@@ -1426,7 +1423,7 @@ async function loadPagos() {
       <td class="fw-bold text-success">${fmtGs(p.amount||0)}</td>
       <td style="font-size:0.82rem;">${p.month||'—'}</td>
       <td style="font-size:0.82rem;">${fmtDate(p.date)}</td>
-      <td style="font-size:0.82rem;">${p.method||'—'}</td>
+      <td style="font-size:0.82rem;">${p.metodo_pago||p.method||'—'}</td>
       <td>${payStatusBadge(st)}</td>
       <td style="font-size:0.8rem;color:#6c757d;">${p.notes||'—'}</td>
       <td>
