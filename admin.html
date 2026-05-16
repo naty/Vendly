@@ -854,9 +854,10 @@ let revenueChart = null;
 // HELPERS
 // ============================================================
 function fmtGs(n) {
-  return '₲ ' + Math.round(Number(n)).toLocaleString('es-PY');
+  return '$' + Math.round(Number(n)).toLocaleString('es-AR');
 }
 function fmtDate(d) {
+  if (!d) return '—';
   if (!d) return '—';
   return new Date(d + (d.includes('T') ? '' : 'T00:00:00')).toLocaleDateString('es-AR');
 }
@@ -1095,7 +1096,7 @@ async function loadClientes() {
 
   // Try Supabase
   const { data: subs } = await db.from('suscripciones').select('*').order('created_at', { ascending: false });
-  allClientes = (subs && subs.length > 0) ? subs : MOCK_CLIENTES;
+  allClientes = subs || [];
 
   // Count referidos per code
   const refCounts = {};
@@ -1395,10 +1396,6 @@ async function loadPagos() {
     list = list.filter(p => (p.status || 'pagado') === estado);
   }
 
-  // Fallback to mock
-  if (list.length === 0 && (!pagos || pagos.length === 0)) {
-    list = MOCK_PAGOS.map(p => ({ ...p, status: p.status }));
-  }
 
   // KPIs
   let cobrado = 0, pendiente = 0, alDia = 0, vencidos = 0;
@@ -1441,7 +1438,7 @@ async function loadReferidos() {
   tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Cargando...</td></tr>';
 
   const { data: subs } = await db.from('suscripciones').select('*');
-  const list = (subs && subs.length > 0) ? subs : MOCK_CLIENTES;
+  const list = subs || [];
 
   tbody.innerHTML = list.map(c => {
     const refs = list.filter(r => r.referred_by === c.referral_code).length;

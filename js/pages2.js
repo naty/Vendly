@@ -146,34 +146,33 @@ function initCreateProductPage() {
   if (priceInp) priceInp.addEventListener('input', updateMargin);
 }
 
-function saveNewProduct() {
+async function saveNewProduct() {
   const name = (document.getElementById('cpf-name')?.value || '').trim();
   if (!name) {
     Swal.fire({ icon: 'warning', title: 'Campo requerido', text: 'El nombre del producto es obligatorio.', confirmButtonColor: '#00BCD4' });
     return;
   }
-  const cost  = parseFloat(document.getElementById('cpf-cost')?.value)  || 0;
-  const price = parseFloat(document.getElementById('cpf-price')?.value) || 0;
-  const stock = parseInt(document.getElementById('cpf-stock')?.value)   || 0;
-  const newId = PRODUCTS.length + 1;
+  const cost     = parseFloat(document.getElementById('cpf-cost')?.value)     || 0;
+  const price    = parseFloat(document.getElementById('cpf-price')?.value)    || 0;
+  const qty      = parseInt(document.getElementById('cpf-stock')?.value)      || 0;
+  const code     = document.getElementById('cpf-code')?.value.trim()          || '';
+  const category = document.getElementById('cpf-category')?.value             || 'Sin categoría';
+  const unit     = document.getElementById('cpf-unit')?.value                 || 'Unid.';
+  const type     = document.getElementById('cpf-type')?.value                 || 'simple';
 
-  PRODUCTS.push({
-    id: newId,
-    img: '',
-    code: document.getElementById('cpf-code')?.value.trim() || ('PRD-' + String(newId).padStart(3,'0')),
-    name,
-    category: document.getElementById('cpf-category')?.value || 'Sin categoría',
-    cost,
-    price,
-    qty: stock,
-    unit: document.getElementById('cpf-unit')?.value || 'Unid.',
-    type: document.getElementById('cpf-type')?.value || 'simple',
-  });
+  const { data: inserted, error } = await db.from('productos').insert({
+    name, category, cost, price, qty, unit, type, img: '', code,
+  }).select().single();
+
+  if (error) {
+    Swal.fire({ icon: 'error', title: 'Error al guardar', text: error.message, confirmButtonColor: '#DC3545' });
+    return;
+  }
 
   Swal.fire({
     icon: 'success',
     title: '¡Producto creado!',
-    html: `<strong>${name}</strong> fue agregado con código <strong>PRD-${String(newId).padStart(3,'0')}</strong>.`,
+    html: `<strong>${name}</strong> fue guardado correctamente en la base de datos.`,
     confirmButtonColor: '#00BCD4',
     confirmButtonText: '<i class="bi bi-list-ul me-1"></i> Ver lista',
     showCancelButton: true,

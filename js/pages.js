@@ -833,24 +833,42 @@ function completeSale() {
     cancelButtonColor: '#6c757d',
     confirmButtonText: '<i class="bi bi-check-lg me-1"></i> Cobrar',
     cancelButtonText: 'Cancelar',
-  }).then(r => {
+  }).then(async r => {
     if (r.isConfirmed) {
-      const newSale = {
-        id: 1000 + SALES.length + 1,
-        date: new Date().toISOString().split('T')[0],
-        client: 'Consumidor Final',
+      const payment = document.getElementById('swal-payment')?.value || 'Efectivo';
+      const itemCount = posCart.reduce((s, i) => s + i.qty, 0);
+      const today = new Date().toISOString().split('T')[0];
+
+      const { data: inserted, error } = await db.from('ventas').insert({
+        date: today,
+        client_name: 'Consumidor Final',
         total,
-        payment: document.getElementById('swal-payment')?.value || 'Efectivo',
+        payment,
         status: 'cobrada',
-        items: posCart.reduce((s, i) => s + i.qty, 0),
-      };
-      SALES.unshift(newSale);
+        items: itemCount,
+      }).select().single();
+
+      if (error) {
+        Swal.fire({ icon: 'error', title: 'Error al guardar', text: error.message, confirmButtonColor: '#DC3545' });
+        return;
+      }
+
+      for (const item of posCart) {
+        const prod = PRODUCTS.find(p => p.id === item.id);
+        if (prod) {
+          const newQty = Math.max(0, prod.qty - item.qty);
+          await db.from('productos').update({ qty: newQty }).eq('id', item.id);
+          prod.qty = newQty;
+        }
+      }
+
       posCart = [];
       renderPOSCart();
+      renderPOSProducts();
       Swal.fire({
         icon: 'success',
         title: '¡Venta registrada!',
-        html: `Venta <strong>#${newSale.id}</strong> por <strong>${fmtCurrency(total)}</strong> registrada correctamente.`,
+        html: `Venta <strong>#${inserted.id}</strong> por <strong>${fmtCurrency(total)}</strong> guardada en Supabase.`,
         confirmButtonColor: '#00BCD4',
         confirmButtonText: 'Imprimir ticket',
         showCancelButton: true,
